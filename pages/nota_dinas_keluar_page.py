@@ -26,9 +26,7 @@ class NotaDinasKeluarPage(SuratFormBasePage):
     def is_nota_dinas_keluar_loaded(self):
         return self.is_halaman_loaded()
 
-    # ==========================================================
-    # ISI FORM -- KHUSUS Nota Dinas Keluar
-    # ==========================================================
+    # ---------- ISI FORM -- khusus Nota Dinas Keluar ----------
     def isi_form(self, data_surat):
         if data_surat.get("perihal"):
             self.isi_perihal(data_surat["perihal"])
@@ -49,9 +47,7 @@ class NotaDinasKeluarPage(SuratFormBasePage):
         if data_surat.get("uraian"):
             self.isi_uraian(data_surat["uraian"])
 
-    # ==========================================================
-    # B. CEK DETAIL SURAT
-    # ==========================================================
+    # ------------------- B. CEK DETAIL SURAT -------------------
     POPUP_DETAIL_SURAT = (
         By.XPATH,
         "//span[contains(@class,'x-window-header-text')]"
@@ -66,10 +62,7 @@ class NotaDinasKeluarPage(SuratFormBasePage):
         "//span[contains(@class,'x-window-header-text')]"
         "[normalize-space(text())='Log Aktifitas Surat']",
     )
-    # PENTING (fix popup tidak pernah tertutup): di HTML asli, class
-    # `x-tool-close` ada di elemen <img> (img.x-tool-img.x-tool-close),
-    # BUKAN di <div>. Selector lama div.x-tool-close tidak pernah match
-    # sehingga klik close selalu gagal diam-diam.
+    # Class x-tool-close ada di <img> (img.x-tool-img.x-tool-close), BUKAN <div>.
     BTN_CLOSE_LOG = (
         By.CSS_SELECTOR,
         "img.x-tool-close",
@@ -91,9 +84,7 @@ class NotaDinasKeluarPage(SuratFormBasePage):
 
     def _tutup_popup_dengan_header(self, judul_popup, timeout=5):
         """Klik tombol Close DI DALAM window popup yang judulnya persis
-        `judul_popup` — BUKAN cari semua x-tool-close di seluruh halaman
-        (popup detail & popup log sama-sama punya tombol close, jadi
-        klik `[-1]` global bisa salah sasaran / nyasar ke popup lain)."""
+        `judul_popup` (bukan semua x-tool-close di seluruh halaman)."""
         windows = self.driver.find_elements(By.CSS_SELECTOR, "div.x-window")
         for win in windows:
             try:
@@ -113,10 +104,8 @@ class NotaDinasKeluarPage(SuratFormBasePage):
                 if not header:
                     continue  # bukan popup yang dicari
 
-                # Klik semua tombol close DI DALAM window ini.
-                # Class x-tool-close ada di <img>, handler klik ExtJS
-                # ada di div.x-tool induknya -- klik img lalu parent div
-                # supaya event benar-benar terekam.
+                # Klik semua tombol close DI DALAM window ini (img + parent
+                # div.x-tool tempat handler klik ExtJS-nya).
                 close_imgs = win.find_elements(By.CSS_SELECTOR, "img.x-tool-close")
                 for img in close_imgs:
                     try:

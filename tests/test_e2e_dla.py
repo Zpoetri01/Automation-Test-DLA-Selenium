@@ -24,25 +24,29 @@ from pages.topbar_page import TopbarPage
 class TestE2EDlaFlow:
 
     @pytest.fixture(scope="class", autouse=True)
-    def setup_page_objects(self, request, driver, test_data):
-        request.cls.driver = driver
-        request.cls.data = test_data
+    @classmethod
+    def setup_page_objects(cls, request, driver, test_data):
+        # Classmethod (bukan instance method) sesuai deprecation pytest:
+        # fixture class-scoped berjalan sekali per class, tapi tiap test
+        # dapat instance baru -- set attribute di `cls` (bukan self/
+        # request.cls) supaya tetap terlihat di semua test method.
+        cls.driver = driver
+        cls.data = test_data
 
-        request.cls.login_page = LoginPage(driver)
-        request.cls.dashboard_page = DashboardPage(driver)
-        request.cls.tugas_page = TugasPage(driver)
-        request.cls.masuk_page = MasukPage(driver)
-        request.cls.disposisi_keluar_page = DisposisiKeluarPage(driver)
-        request.cls.progress_surat_page = ProgressSuratPage(driver)
-        request.cls.surat_dinas_eksternal_page = SuratDinasEksternalPage(driver)
-        request.cls.nota_dinas_keluar_page = NotaDinasKeluarPage(driver)
-        request.cls.topbar_page = TopbarPage(driver)
+        cls.login_page = LoginPage(driver)
+        cls.dashboard_page = DashboardPage(driver)
+        cls.tugas_page = TugasPage(driver)
+        cls.masuk_page = MasukPage(driver)
+        cls.disposisi_keluar_page = DisposisiKeluarPage(driver)
+        cls.progress_surat_page = ProgressSuratPage(driver)
+        cls.surat_dinas_eksternal_page = SuratDinasEksternalPage(driver)
+        cls.nota_dinas_keluar_page = NotaDinasKeluarPage(driver)
+        cls.topbar_page = TopbarPage(driver)
 
     def test_login(self):
         print("\n[LOGIN]")
         self.login_page.open(self.data["base_url"])
-        # Timeout 30 detik -- load pertama (SSO redirect + render
-        # dashboard) kadang butuh lebih dari 20 detik.
+        # Timeout 30 detik -- load pertama (SSO redirect) kadang > 20 detik.
         assert self.login_page.is_login_success(timeout=30), "Login gagal / Dashboard tidak muncul"
         print("v Login berhasil, Dashboard tampil")
 
@@ -52,9 +56,7 @@ class TestE2EDlaFlow:
         print("v Halaman Dashboard tampil")
 
     def test_dashboard_widget(self):
-        # Jeda pendek sesudah loading lalu verifikasi widget CEPAT
-        # (timeout 3 detik per widget, tanpa wait mask per widget) --
-        # biar awal dashboard tidak berlama-lama sebelum Rentang Tanggal.
+        # Verifikasi widget CEPAT (3 detik/widget) biar awal dashboard cepat.
         self.dashboard_page.wait_loading_mask_gone(timeout=5)
         self.dashboard_page.pace(2)
         assert self.dashboard_page.is_widget_visible(self.dashboard_page.WIDGET_SURAT_MASUK, timeout=3), \
@@ -206,19 +208,15 @@ class TestE2EDlaFlow:
     # MODUL 6 - SURAT KELUAR EKSTERNAL
     # ==========================================================
     def test_surat_keluar_eksternal(self):
-        """Steps 1-9: Buka halaman → search otomatis → Advanced Filter
-        (jenis filter + checkbox) → pastikan data terfilter. Lalu buka
-        Advanced Filter LAGI → klik RESET supaya filter dibersihkan &
-        grid kembali semula (draft baru nanti terlihat) → siap Tambah."""
+        """Steps 1-9: search otomatis + Advanced Filter, lalu RESET
+        supaya filter dibersihkan & grid siap untuk Tambah."""
         print("\n[MODUL 6 - SURAT KELUAR EKSTERNAL]")
         self._jalankan_flow_filter_generic(
             self.surat_dinas_eksternal_page, "surat_dinas_eksternal",
             "Surat Keluar Eksternal", skip_posisi=True,
         )
 
-        # Buka Advanced Filter sekali lagi, lalu RESET.
-        # Kalau popup ternyata MASIH TERBUKA dari langkah sebelumnya
-        # (CARI tidak menutupnya), langsung klik RESET saja.
+        # Buka Advanced Filter lagi lalu RESET (langsung RESET kalau popup masih terbuka).
         if not self.surat_dinas_eksternal_page.is_popup_advanced_filter_terbuka():
             self.surat_dinas_eksternal_page.klik_filter()
         assert self.surat_dinas_eksternal_page.is_popup_advanced_filter_terbuka(), (
@@ -271,8 +269,7 @@ class TestE2EDlaFlow:
         # Step C.18: Hapus penerima lama (ikon bin)
         self.surat_dinas_eksternal_page.hapus_penerima()
         print("v Penerima lama dihapus")
-        # Verifikasi yang terhapus adalah PENERIMA (Ryco) -- penyetuju
-        # (Yulia) harusnya MASIH ADA di grid Penyetuju.
+        # Yang terhapus harus PENERIMA (Ryco) -- penyetuju (Yulia) masih ada.
         assert self.surat_dinas_eksternal_page.verifikasi_penyetuju_masih_ada(
             data["kata_kunci_penyetuju"]
         ), ("Penyetuju ikut terhapus! Yang harusnya terhapus adalah "
@@ -369,13 +366,9 @@ class TestE2EDlaFlow:
         print("v Cek Detail Surat selesai")
 
     def test_topbar(self):
-        """Modul Topbar -- 4 tombol di bar ATAS: Lonceng Notifikasi,
-        Notifikasi Agenda Surat, Kelola Surat, Pengaturan. Buka tiap
-        dropdown & pastikan isinya muncul. TANPA test mendalam di tiap
-        item (menunya sangat banyak)."""
+        """4 tombol topbar: buka tiap dropdown & pastikan isinya muncul."""
         print("\n[MODUL TOPBAR]")
-        # Pindah ke Dashboard dulu -- lonceng notifikasi hanya tampil
-        # di halaman Dashboard (di halaman lain topbar-nya beda).
+        # Kembali ke Dashboard dulu (lonceng notifikasi hanya ada di Dashboard).
         self.dashboard_page.wait_loading_mask_gone(timeout=10)
         menu = self.dashboard_page.find_visible_among(
             (By.CSS_SELECTOR, "[data-qtip='Dashboard']"), timeout=10

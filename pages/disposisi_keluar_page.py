@@ -13,8 +13,7 @@ from pages.filterable_list_page import FilterableListPage
 
 class DisposisiKeluarPage(FilterableListPage):
 
-    # Locator dikonfirmasi lewat tools/scan_locators.py
-    # (data-qtip='Disposisi Keluar').
+    # Dikonfirmasi lewat tools/scan_locators.py (data-qtip='Disposisi Keluar').
     MENU_LOCATOR = (By.CSS_SELECTOR, "[data-qtip='Disposisi Keluar']")
 
     HEADER_LOCATOR = (By.XPATH, "//*[normalize-space(text())='Disposisi Keluar']")

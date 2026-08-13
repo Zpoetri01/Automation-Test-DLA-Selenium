@@ -38,8 +38,7 @@ from config import config
 
 
 class BasePage:
-    # Loading mask ExtJS yang umum dipakai (bisa lebih dari satu kandidat
-    # class tergantung versi ExtJS yang dipakai NewDLA).
+    # Loading mask ExtJS (lebih dari satu kandidat class tergantung versi).
     LOADING_MASK_LOCATORS = (
         (By.CSS_SELECTOR, "div.x-mask"),
         (By.CSS_SELECTOR, "div.x-mask-msg"),
@@ -49,41 +48,25 @@ class BasePage:
         self.driver = driver
         self.timeout = timeout or config.DEFAULT_TIMEOUT
 
-    # ------------------------------------------------------------------
-    # Helper dasar
-    # ------------------------------------------------------------------
+    # ------------------------------ Helper dasar ------------------------------
     def _wait(self, timeout=None):
         return WebDriverWait(self.driver, timeout or self.timeout)
 
     def pace(self, seconds=None):
-        """Jeda singkat HANYA untuk kebutuhan visual (supaya urutan aksi
-        kelihatan jelas satu-satu saat browser diamati/didemokan) --
-        BUKAN untuk menunggu elemen (itu tugas WebDriverWait, tetap dipakai
-        di semua method lain). Dipanggil otomatis setelah click(),
-        click_via_js(), dan type_text() supaya aksi tidak terasa
-        instan/sekelebat, tapi juga tidak berlarut-larut (default 5 detik,
-        bisa diubah lewat config.ACTION_PACE_SECONDS / env DLA_ACTION_PACE)."""
+        """Jeda visual antar-aksi (bukan untuk menunggu elemen)."""
         time.sleep(seconds if seconds is not None else config.ACTION_PACE_SECONDS)
 
     def find(self, locator, timeout=None):
-        """Tunggu sampai elemen ADA di DOM, kembalikan elemennya."""
+        """Tunggu elemen ADA di DOM, kembalikan elemennya."""
         return self._wait(timeout).until(EC.presence_of_element_located(locator))
 
     def find_all(self, locator, timeout=None):
-        """Tunggu sampai minimal 1 elemen ADA di DOM, kembalikan semuanya."""
+        """Tunggu minimal 1 elemen ADA di DOM, kembalikan semuanya."""
         return self._wait(timeout).until(EC.presence_of_all_elements_located(locator))
 
     def find_visible_among(self, locator, timeout=None):
-        """Untuk locator yang TIDAK unik (banyak elemen cocok di DOM,
-        tapi cuma satu yang benar-benar tampil di layar -- elemen lain
-        ada di DOM namun disembunyikan/display:none, misalnya dropdown
-        Posisi lain di popup Advanced Filter yang belum dibuka).
-
-        Dipakai supaya kita tidak salah klik elemen yang tersembunyi
-        (yang kalau diklik pakai JS tetap "berhasil" secara teknis,
-        tapi dropdown/boundlist yang muncul jadi salah posisi / muncul
-        sendirian di sudut layar, karena elemen sumbernya tidak
-        punya posisi render yang valid)."""
+        """Ambil elemen PERTAMA yang benar2 TAMPIL dari locator yang
+        match banyak elemen (yang lain hidden di DOM)."""
         elements = self._wait(timeout).until(
             EC.presence_of_all_elements_located(locator)
         )
@@ -98,16 +81,8 @@ class BasePage:
         )
 
     def find_all_visible(self, locator, timeout=None):
-        """Sama seperti find_visible_among(), TAPI kembalikan SEMUA elemen
-        yang benar-benar tampil (bukan cuma yang pertama ketemu). Dipakai
-        di tempat yang butuh tahu URUTAN elemen yang tampil di layar --
-        misal tombol 'Tambah' Penyetuju vs Tambah Penerima/Tembusan di
-        form Surat Keluar Eksternal & Nota Dinas Keluar, yang teksnya
-        identik ('Tambah') dan cuma bisa dibedakan lewat urutan
-        tampilnya di form yang SEDANG terbuka -- bukan urutan di DOM
-        (yang bisa kebawa elemen lain yang sudah basi/tersembunyi kalau
-        popup sebelumnya belum benar2 tertutup, penyebab popup
-        tertumpuk/tertindih)."""
+        """Sama seperti find_visible_among() tapi kembalikan SEMUA yang
+        tampil (dipakai saat urutan elemen tampil penting)."""
         try:
             elements = self._wait(timeout).until(
                 EC.presence_of_all_elements_located(locator)
@@ -123,31 +98,14 @@ class BasePage:
                 continue
         return visible
 
-    # ------------------------------------------------------------------
-    # Dialog/window ExtJS yang SEDANG AKTIF (fix bug #3/#4/#5/#6: popup
-    # "nyasar"/menumpuk/tertindih)
-    # ------------------------------------------------------------------
-    # AKAR MASALAH: is_displayed() Selenium cuma cek CSS
-    # visibility/opacity/ukuran elemen -- TIDAK PEDULI elemen itu
-    # sedang TERTUTUP MASK/dialog lain yang tumpang tindih di atasnya.
-    # Saat dialog "Tambah Agenda Surat" terbuka, tombol 'Tambah' di
-    # halaman LIST di belakangnya masih is_displayed()==True (cuma
-    # ketutup mask overlay secara visual, bukan display:none) --
-    # akibatnya find_all_visible(BTN_TAMBAH_ANY) bisa ikut menghitung
-    # tombol 'Tambah' milik halaman list itu sebagai salah satu tombol
-    # "Tambah" yang tampil, sehingga index Tambah Penyetuju/Tambah
-    # Penerima jadi bergeser (salah sasaran) -- persis gejala "tombol
-    # tambah penyetuju/penerima tidak muncul" & "form Tambah menumpuk
-    # / berkali-kali" yang dilaporkan. Fix: batasi pencarian elemen HANYA
-    # di dalam dialog/window ExtJS yang sedang AKTIF (z-index paling
-    # tinggi di antara semua div.x-window yang tampil).
+    # ------------------ Dialog/window ExtJS yang SEDANG AKTIF ------------------
+    # is_displayed() TIDAK peduli elemen tertutup mask/dialog lain, jadi
+    # elemen harus dicari DI DALAM window aktif (z-index tertinggi) supaya
+    # tidak salah sasaran ke elemen senama di dialog/layer di belakangnya.
     WINDOW_LOCATOR = (By.CSS_SELECTOR, "div.x-window")
 
     def find_active_window(self, timeout=None):
-        """Kembalikan elemen dialog/window ExtJS yang sedang AKTIF (paling
-        atas) saat ini -- dipilih dari semua div.x-window yang BENAR-BENAR
-        tampil, diambil yang z-index-nya PALING TINGGI (dialog yang paling
-        terakhir dibuka / paling atas)."""
+        """Window ExtJS yang tampil dengan z-index PALING TINGGI (paling atas)."""
         windows = self.find_all_visible(self.WINDOW_LOCATOR, timeout=timeout or self.timeout)
         if not windows:
             raise TimeoutException("Tidak ada dialog/window ExtJS yang tampil saat ini.")
@@ -164,11 +122,7 @@ class BasePage:
         return max(windows, key=_z_index)
 
     def find_all_visible_in_active_window(self, locator, timeout=None):
-        """Sama seperti find_all_visible(), TAPI dibatasi HANYA di dalam
-        dialog/window ExtJS yang sedang aktif (lihat find_active_window) --
-        mencegah ikut menghitung elemen yang senama tapi milik halaman/
-        dialog LAIN di belakangnya yang cuma tertutup mask (bukan
-        benar-benar display:none)."""
+        """Semua elemen tampil untuk locator, HANYA di dalam window aktif."""
         window = self.find_active_window(timeout=timeout)
         by, value = locator
         relative_value = value
@@ -188,9 +142,7 @@ class BasePage:
         return visible
 
     def find_visible_in_active_window(self, locator, timeout=None):
-        """Elemen PERTAMA yang benar-benar tampil di dalam dialog/window
-        ExtJS yang sedang aktif. Sama alasannya dengan
-        find_all_visible_in_active_window()."""
+        """Elemen PERTAMA yang tampil di dalam window aktif."""
         deadline = time.time() + (timeout or self.timeout)
         last_error = None
         while time.time() < deadline:
@@ -206,12 +158,11 @@ class BasePage:
         ) from last_error
 
     def click_visible_in_active_window(self, locator, timeout=None):
-        """Native click + JS fallback. ExtJS checkboxes perlu JS click."""
+        """Native click + JS fallback pada elemen tampil di window aktif."""
         element = self.find_visible_in_active_window(locator, timeout=timeout)
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", element
         )
-        # Coba native click
         clicked = False
         for _ in range(2):
             try:
@@ -220,41 +171,20 @@ class BasePage:
                 break
             except Exception:
                 self.pace(1)
-        # Fallback: JS click
         if not clicked:
             self.driver.execute_script("arguments[0].click();", element)
         self.pace()
         return element
 
     def click_visible_among(self, locator, timeout=None):
-        """Gabungan find_visible_among() + klik via JS -- dipakai di
-        SEMUA tempat yang memilih 1 opsi dari daftar/boundlist yang
-        teksnya bisa DUPLIKAT di DOM (opsi yang sama muncul di lebih
-        dari satu boundlist/combo, tapi cuma satu yang benar-benar
-        tampil). Ini akar penyebab banyak TimeoutException di flow
-        filter & form: element_to_be_clickable() pada elemen PERTAMA
-        yang match (yang ternyata tersembunyi) akan menunggu sampai
-        timeout tanpa pernah mencoba elemen lain yang benar-benar
-        tampil."""
+        """Klik elemen yang benar2 tampil (bukan match pertama yang bisa hidden)."""
         element = self.find_visible_among(locator, timeout=timeout)
         self.click_via_js(element)
         return element
 
     def click(self, locator, timeout=None):
-        """Tunggu elemen bisa DIKLIK, baru klik. Kalau kena
-        StaleElementReferenceException (elemen sempat di-render ulang
-        ExtJS di antara pencarian & klik), coba sekali lagi.
-
-        Kalau kena ElementClickInterceptedException -- ada 2 penyebab
-        umum yang ditemukan di NewDLA:
-          1. Loading mask (div.x-mask) belum hilang saat diklik (klik
-             menu/tombol saat halaman sebelumnya masih transisi).
-          2. Tombol ExtJS yang punya ikon + teks di satu elemen <a>,
-             titik tengah yang dihitung Selenium untuk native click()
-             kadang jatuh di elemen ikon (sibling), bukan di teks
-             (contoh: tombol SIMPAN pada popup upload berkas Link).
-        Kedua kasus ini diatasi dengan fallback klik via JavaScript
-        (tidak bergantung ke titik koordinat / elemen di atasnya)."""
+        """Klik elemen. Fallback JS kalau kena StaleElement/terhalang
+        (loading mask / ikon tombol menutupi titik klik)."""
         try:
             element = self._wait(timeout).until(EC.element_to_be_clickable(locator))
             element.click()
@@ -280,7 +210,7 @@ class BasePage:
         self.pace()
 
     def type_text(self, locator, text, clear_first=True, timeout=None):
-        """Tunggu elemen muncul, kosongkan (opsional), lalu ketik teks."""
+        """Tunggu elemen tampil, kosongkan (opsional), lalu ketik teks."""
         element = self._wait(timeout).until(EC.visibility_of_element_located(locator))
         if clear_first:
             element.clear()
@@ -288,29 +218,9 @@ class BasePage:
         self.pace()
 
     def type_text_visible(self, locator, text, clear_first=True, timeout=None):
-        """Sama seperti type_text(), TAPI untuk locator yang TIDAK unik --
-        banyak elemen cocok di DOM tapi cuma satu yang benar-benar tampil
-        (misal input[type='search'] yang di ExtJS sering dirender ganda:
-        satu tersembunyi lebih dulu di DOM, satu lagi yang aktif/tampil).
-
-        type_text() versi biasa pakai visibility_of_element_located() yang
-        MENGUNCI ke elemen PERTAMA yang match locator lalu menunggu elemen
-        ITU tampil -- kalau yang pertama di DOM justru yang tersembunyi,
-        dia menunggu sampai timeout tanpa pernah mencoba elemen lain yang
-        benar-benar tampil (akar penyebab TimeoutException di cari_otomatis
-        modul 2-5). Fix: pilih elemen yang benar-benar tampil lewat
-        find_visible_among (mirror find_visible_among/click_visible_among),
-        baru clear()+send_keys()."""
+        """Ketik ke elemen yang benar2 TAMPIL (untuk locator yang match
+        elemen ganda di DOM) + scroll ke viewport sebelum ketik."""
         element = self.find_visible_among(locator, timeout=timeout)
-        # PENTING (fix bug field form yang "terputus"/tidak keisi mulai
-        # dari field yang letaknya di bawah/harus discroll dulu -- mis.
-        # Jenis Surat s.d. Lokasi Arsip Fisik pada form Tambah Agenda
-        # Surat): send_keys() tidak selalu memicu auto-scroll pada
-        # container yang overflow-nya diatur manual oleh ExtJS (bukan
-        # scroll bawaan browser/document), jadi elemen yang belum masuk
-        # area pandang bisa gagal diketik walau is_displayed()==True.
-        # Fix: scroll elemen ke tengah viewport dulu via JS (sama seperti
-        # click_via_js) sebelum clear()/send_keys().
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", element
         )
@@ -323,9 +233,8 @@ class BasePage:
         return self.find(locator, timeout=timeout).text
 
     def is_visible(self, locator, timeout=None):
-        """True/False apakah elemen tampil dalam waktu tertentu -- TIDAK
-        melempar error kalau tidak ketemu. Berguna untuk verifikasi
-        elemen yang sifatnya opsional."""
+        """True/False apakah elemen tampil. HATI-HATI: mengunci ke match
+        PERTAMA di DOM -- pakai find_visible_among untuk locator ganda."""
         try:
             WebDriverWait(self.driver, timeout or self.timeout).until(
                 EC.visibility_of_element_located(locator)
@@ -335,7 +244,7 @@ class BasePage:
             return False
 
     def is_present(self, locator, timeout=None):
-        """Cek apakah elemen ADA di DOM (tidak wajib terlihat di layar)."""
+        """Cek apakah elemen ADA di DOM (tidak wajib terlihat)."""
         try:
             WebDriverWait(self.driver, timeout or self.timeout).until(
                 EC.presence_of_element_located(locator)
@@ -348,26 +257,16 @@ class BasePage:
         return self._wait(timeout).until(EC.url_contains(text))
 
     def find_first_visible(self, locator_candidates, timeout=None):
-        """Coba beberapa kandidat locator, kembalikan locator PERTAMA
-        yang berhasil ditemukan & terlihat, atau None kalau semua gagal.
-
-        Berguna selama locator asli belum 100% dikonfirmasi (dummy /
-        candidate locator bertanda TODO) -- daripada langsung gagal
-        karena 1 tebakan salah, coba beberapa alternatif sekaligus."""
+        """Coba kandidat locator satu per satu, kembalikan yang pertama
+        ketemu & terlihat (untuk locator yang belum 100% dikonfirmasi)."""
         for locator in locator_candidates:
             if self.is_visible(locator, timeout=timeout or 3):
                 return locator
         return None
 
-    # ------------------------------------------------------------------
-    # Khusus ExtJS: loading mask
-    # ------------------------------------------------------------------
+    # ----------------------------- Loading mask ExtJS -----------------------------
     def wait_loading_mask_gone(self, timeout=None):
-        """Tunggu sampai loading mask ExtJS (overlay abu-abu + spinner)
-        hilang. Dipanggil setelah aksi yang memicu request ke server
-        (klik CARI, buka dokumen, dll) supaya kita tidak membaca data
-        SAAT masih loading. Kalau mask memang tidak pernah muncul
-        (request cepat), fungsi ini tidak error -- lanjut saja."""
+        """Tunggu loading mask hilang. Tidak error kalau mask tidak muncul."""
         wait_timeout = timeout or self.timeout
         for mask_locator in self.LOADING_MASK_LOCATORS:
             try:
@@ -377,9 +276,7 @@ class BasePage:
             except TimeoutException:
                 continue
 
-    # ------------------------------------------------------------------
-    # Screenshot manual (di luar hook kegagalan otomatis di conftest.py)
-    # ------------------------------------------------------------------
+    # --------------------- Screenshot manual (di luar hook conftest) ---------------------
     def take_screenshot(self, name):
         os.makedirs(config.SCREENSHOT_DIR, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

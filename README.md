@@ -105,6 +105,54 @@ project/
 
 ---
 
+## Dokumentasi teknis
+
+### Teknologi yang dipakai
+
+| Teknologi | Dipakai untuk |
+|---|---|
+| Python 3.13 | Bahasa utama seluruh test & page object |
+| Selenium WebDriver (Chrome) | Mengendalikan browser (klik, ketik, baca elemen) |
+| Pytest 9 + pytest-html | Menjalankan test, ringkasan hasil, laporan `report.html` |
+| JSON (`data/test_data.json`) | Menyimpan SEMUA data uji (keyword, isian form, staf) |
+| ExtJS (aplikasi NewDLA) | Aplikasi yang diuji — SPA, elemen di-render dinamis |
+
+### Arsitektur
+
+```
+conftest.py (fixture driver session + test_data + hook screenshot)
+    │
+    ▼
+tests/test_e2e_dla.py   ──memanggil──▶  page object (pages/*_page.py)
+    │                                        │
+    │  data dari test_data.json              ▼
+    │                            base_page.py (helper Selenium + ExtJS)
+    ▼
+Selenium WebDriver ──▶ Chrome (aplikasi NewDLA, SPA ExtJS)
+```
+
+1. **Page Object Model (POM)** — setiap halaman/modul punya 1 class di
+   `pages/` berisi locator + method aksi. Test TIDAK menyentuh Selenium
+   langsung, hanya memanggil method "level tinggi" dari page object.
+2. **Inheritance bertingkat** — logic yang dipakai banyak modul dinaikkan
+   ke parent: `BasePage` (helper umum) → `FilterableListPage` (filter,
+   Modul 2-5) → `SuratFormBasePage` (form surat, Modul 6-7). Peta
+   lengkap ada di bagian "Peta kelas" di bawah.
+3. **Data-driven** — semua data uji terpusat di `data/test_data.json`,
+   di-load lewat fixture `test_data` di `conftest.py`. Ganti data uji
+   tanpa menyentuh kode.
+4. **1 browser session** — fixture `driver` ber-scope `session` di
+   `conftest.py`, jadi Chrome dibuka sekali dari Login sampai Logout.
+   Hook `pytest_runtest_makereport` otomatis screenshot saat gagal +
+   mencetak kotak "AUTOMATION TESTING RESULT" di akhir.
+5. **Helper khusus ExtJS** — karena NewDLA adalah SPA ExtJS (banyak
+   elemen hidden di DOM, id auto-generate, loading mask), `BasePage`
+   menyediakan helper seperti `find_visible_among()` (cari elemen yang
+   benar-benar tampil), `click_visible_among()`, `wait_loading_mask_gone()`,
+   dan pencarian elemen di dalam `active window`.
+
+---
+
 ## Cara membaca kode
 
 ### Peta kelas (inheritance)
@@ -231,38 +279,3 @@ Setelah pytest selesai, buka `reports/report.html` — laporan
 self-contained berisi ringkasan PASS/FAIL, detail tiap step, dan
 screenshot otomatis saat ada yang gagal.
 
----
-
-## Bantuan locator
-
-Kalau ada elemen yang locator-nya berubah / belum pasti:
-
-1. Jalankan Chrome dengan `--remote-debugging-port=9222` (profil selenium),
-   login manual, buka halaman yang mau discan.
-2. Jalankan `python tools/scan_locators_v2.py` — hasil kandidat locator
-   (menyaring id auto-generate ExtJS) ditulis ke `reports/locator_scan.txt`.
-3. Atau manual: klik kanan → **Inspect**, cek `data-qtip`, `itemId`,
-   `name`, atau `class` yang stabil (hindari id seperti `button-1042`).
-4. Update locator terkait di `pages/*_page.py`.
-
-Prioritas locator di project ini: `data-qtip` > `itemId`/`name` > id
-stabil > css selector > xpath berbasis teks.
-
----
-
-## Catatan penting (pelajaran dari debugging)
-
-- **SPA ExtJS menyimpan banyak elemen tersembunyi di DOM.** Jangan pakai
-  `is_visible`/`find_first_visible` yang mengunci ke match pertama (bisa
-  hidden) — pakai `find_visible_among` yang mencari elemen yang
-  benar-benar tampil.
-- **Tombol close popup pakai `img.x-tool-close`** — class `x-tool-close`
-  ada di `<img>`, bukan `<div>`.
-- **Jangan `driver.refresh()`** — reload grid cukup via ExtJS store
-  (`_klik_muat_ulang()`), supaya sesi SPA tidak terputus.
-- **Popup Advanced Filter menutup sendiri setelah CARI** — tidak perlu
-  ESC/klik body (justru merusak state toolbar).
-- **Lonceng notifikasi hanya ada di halaman Dashboard** — test Topbar
-  navigasi ke Dashboard dulu sebelum buka dropdown.
-- **Form Tambah punya 2 tombol "Tambah"** — index 0 = Penyetuju,
-  index 1 = Penerima. Salah index = staf masuk section yang salah.

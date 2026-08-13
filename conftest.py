@@ -25,13 +25,9 @@ from selenium.webdriver.chrome.options import Options
 from config import config
 
 
-# ---------------------------------------------------------------------------
-# Ringkasan hasil test per modul (dicetak rapi di terminal saat running +
-# kotak "AUTOMATION TESTING RESULT" di akhir sesi).
-# ---------------------------------------------------------------------------
-# Pemetaan: nama method test -> label modul yang tampil di terminal.
-# Method test_dashboard_* (Dashboard, 7 method) DIGABUNG jadi 1 baris
-# "Dashboard".
+# ------------------ Ringkasan hasil per modul (kotak "AUTOMATION TESTING RESULT") ------------------
+# Pemetaan: nama method test -> label modul. Method test_dashboard_*
+# (7 method) digabung jadi 1 baris "Dashboard".
 STEP_LABELS = [
     ("test_login", "Login"),
     ("test_dashboard_buka", "Dashboard"),  # kepala grup dashboard
@@ -49,14 +45,12 @@ STEP_LABELS = [
     ("test_logout", "Logout"),
 ]
 
-# Hasil kumulatif: label -> bool (True = semua step modul tersebut lulus).
-# Urutan dict = urutan test dieksekusi.
+# Hasil kumulatif: label -> bool (semua step modul lulus); urutan dict = urutan eksekusi.
 _step_results = {}
 
 
 def _label_for_step(item_name):
-    """Label modul untuk sebuah method test, atau None kalau method ini
-    bagian dari grup (mis. test_dashboard_widget milik grup Dashboard)."""
+    """Label modul untuk method test, atau None kalau bagian grup (mis. dashboard)."""
     if item_name.startswith("test_dashboard_"):
         return "Dashboard"
     for prefix, label in STEP_LABELS:
@@ -66,18 +60,15 @@ def _label_for_step(item_name):
 
 
 def _is_head_step(item_name):
-    """True kalau method ini 'kepala' grup -- hasilnya yang dicetak
-    sebagai baris status di terminal (anggota grup lain cuma diakumulasi
-    hasilnya, tidak dicetak biar tidak dobel)."""
+    """True kalau method ini 'kepala' grup -- hasilnya dicetak sebagai
+    baris status (anggota grup lain hanya diakumulasi)."""
     for prefix, _label in STEP_LABELS:
         if item_name == prefix:
             return True
     return False
 
 
-# ---------------------------------------------------------------------------
-# Fixture: driver (session-scoped -> 1 browser untuk semua modul)
-# ---------------------------------------------------------------------------
+# -------------------- Fixture: driver (session-scoped -> 1 browser) --------------------
 @pytest.fixture(scope="session")
 def driver():
 
@@ -85,7 +76,7 @@ def driver():
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument(f"--user-data-dir={config.CHROME_PROFILE_PATH}")
 
-    # Beberapa flag stabilitas standar untuk ExtJS/app berat di Chrome versi baru.
+    # Flag stabilitas standar untuk ExtJS/app berat di Chrome versi baru.
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_experimental_option(
@@ -101,18 +92,15 @@ def driver():
 
     yield chrome_driver
 
-    # Tutup browser otomatis begitu SELURUH sesi pytest selesai.
-    # Kalau test Logout (Modul 9) sudah menutup tab/session di sisi
-    # aplikasi, driver.quit() di sini tetap aman dipanggil (idempoten).
+    # Tutup browser otomatis di akhir sesi (idempoten walau logout
+    # sudah menutup session di sisi aplikasi).
     try:
         chrome_driver.quit()
     except Exception:
         pass
 
 
-# ---------------------------------------------------------------------------
-# Fixture: test_data (data uji terpusat dari data/test_data.json)
-# ---------------------------------------------------------------------------
+# -------------------- Fixture: test_data (dari data/test_data.json) --------------------
 @pytest.fixture(scope="session")
 def test_data():
     data_path = os.path.join(
@@ -122,10 +110,7 @@ def test_data():
         return json.load(data_file)
 
 
-# ---------------------------------------------------------------------------
-# Ambil instance driver aktif dari test yang sedang berjalan (dipakai hook
-# screenshot di bawah, supaya tidak bergantung nama fixture di setiap test).
-# ---------------------------------------------------------------------------
+# ------------------ Ambil driver aktif dari test (untuk hook screenshot) ------------------
 def _get_active_driver(test_item):
     active_driver = test_item.funcargs.get("driver")
     if active_driver is not None:
@@ -138,9 +123,7 @@ def _get_active_driver(test_item):
     return None
 
 
-# ---------------------------------------------------------------------------
-# Screenshot otomatis saat test gagal / di-skip
-# ---------------------------------------------------------------------------
+# ------------------ Screenshot otomatis saat test gagal / di-skip ------------------
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
@@ -188,9 +171,7 @@ def pytest_runtest_makereport(item, call):
     report.extra = report_extras
 
 
-# ---------------------------------------------------------------------------
-# Akhir sesi: cetak kotak ringkasan "AUTOMATION TESTING RESULT" di terminal
-# ---------------------------------------------------------------------------
+# ------------------ Akhir sesi: cetak kotak "AUTOMATION TESTING RESULT" ------------------
 def pytest_sessionfinish(session, exitstatus):
     if not _step_results:
         return  # tidak ada test yang dieksekusi (mis. cuma collect)

@@ -19,9 +19,7 @@ from pages.base_page import BasePage
 class TopbarPage(BasePage):
 
     # ---- Tombol topbar ----
-    # Lonceng notifikasi: trigger div combo trigger-only (HTML asli dari
-    # user: <div class="x-trigger-index-0 x-form-trigger
-    # x-form-arrow-trigger x-form-trigger-first" role="button">).
+    # Lonceng notifikasi: trigger div combo trigger-only (HTML asli user).
     BTN_LONCENG = (
         By.CSS_SELECTOR,
         "div.x-form-arrow-trigger.x-trigger-index-0",

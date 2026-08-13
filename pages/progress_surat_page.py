@@ -15,8 +15,7 @@ from pages.filterable_list_page import FilterableListPage
 
 class ProgressSuratPage(FilterableListPage):
 
-    # Locator dikonfirmasi lewat tools/scan_locators.py
-    # (data-qtip='Progress Surat').
+    # Dikonfirmasi lewat tools/scan_locators.py (data-qtip='Progress Surat').
     MENU_LOCATOR = (By.CSS_SELECTOR, "[data-qtip='Progress Surat']")
 
     HEADER_LOCATOR = (By.XPATH, "//*[normalize-space(text())='Progress Surat']")

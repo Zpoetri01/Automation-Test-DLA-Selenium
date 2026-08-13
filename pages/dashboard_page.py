@@ -14,24 +14,17 @@ from pages.base_page import BasePage
 
 class DashboardPage(BasePage):
 
-    # ==========================================================
-    # HEADER DASHBOARD
-    # ==========================================================
+    # ------------------------------- Header dashboard -------------------------------
     # TODO: Update locator
     HEADER_DASHBOARD = (
         By.XPATH,
         "//*[normalize-space(text())='Dashboard']")
 
-    # Locator dikonfirmasi lewat tools/scan_locators.py (data-qtip='Dashboard').
-    # NB: sebelumnya value CSS selector ini salah dipasangkan dengan By.XPATH
-    # (bug) sehingga tidak pernah match -- sudah diperbaiki ke By.CSS_SELECTOR.
+    # Dikonfirmasi lewat tools/scan_locators.py (data-qtip='Dashboard').
     TAB_DASHBOARD_AKTIF = (By.CSS_SELECTOR, "[data-qtip='Dashboard']")
 
-    # ==========================================================
-    # WIDGET DASHBOARD
-    # Catatan: "Surat Keluar" dipecah jadi 2 widget terpisah sesuai
-    # kebutuhan (Eksternal & Internal), sebelumnya sempat digabung jadi 1.
-    # ==========================================================
+    # ------------------------------- Widget dashboard -------------------------------
+    # "Surat Keluar" dipecah jadi 2 widget (Eksternal & Internal).
     # TODO: Update locator
     WIDGET_SURAT_MASUK = (By.XPATH, "//*[normalize-space(text())='Surat Masuk']")
 
@@ -41,8 +34,7 @@ class DashboardPage(BasePage):
     # TODO: Update locator
     WIDGET_DISPOSISI_KELUAR = (By.XPATH, "//*[normalize-space(text())='Disposisi Keluar']")
 
-    # TODO: Update locator -- pastikan xpath ini TIDAK ikut ke-match oleh
-    # "Surat Keluar Internal" (pakai exact text match, bukan contains()).
+    # TODO: Update locator -- exact text match supaya tidak ikut match "Surat Keluar Internal".
     WIDGET_SURAT_KELUAR_EKSTERNAL = (
         By.XPATH,
         "//*[normalize-space(text())='Eksternal' or normalize-space(text())='Surat Keluar Eksternal']",
@@ -54,11 +46,8 @@ class DashboardPage(BasePage):
         "//*[normalize-space(text())='Internal' or normalize-space(text())='Surat Keluar Internal']",
     )
 
-    # ==========================================================
-    # FILTER RENTANG TANGGAL
-    # ==========================================================
-    # TODO: Update locator -- beberapa kandidat, find_first_visible()
-    # akan coba satu per satu.
+    # ----------------------------- Filter rentang tanggal -----------------------------
+    # TODO: Update locator -- beberapa kandidat, dicoba satu per satu.
     ICON_RENTANG_TANGGAL_KANDIDAT = [
         (By.CSS_SELECTOR, "[data-qtip*='Rentang Tanggal']"),
         (By.CSS_SELECTOR, "[data-qtip*='Filter Tanggal']"),
@@ -73,20 +62,12 @@ class DashboardPage(BasePage):
     # TODO: Update locator
     INPUT_TANGGAL_AKHIR = (By.XPATH, "//label[contains(text(),'Akhir')]/ancestor::table//input")
 
-    # Teks tombol di aplikasi ini konsisten UPPERCASE (lihat hasil
-    # scan_locators.py: FILTER, CARI, RESET, MUAT ULANG) -- cocokkan kedua
-    # kemungkinan penulisan supaya tidak gagal karena beda kapitalisasi.
+    # Cocokkan kedua penulisan (Cari/CARI) supaya tidak gagal karena kapitalisasi.
     BTN_CARI = (By.XPATH, "//span[normalize-space()='Cari' or normalize-space()='CARI']")
 
-    # ==========================================================
-    # VERIFIKASI
-    # ==========================================================
+    # ---------------------------------- Verifikasi ----------------------------------
     def is_dashboard_loaded(self, timeout=10):
-        """Cek dashboard tampil. PENTING (percepat awal dashboard):
-        pakai find_visible_among (cari elemen yang benar-benar TAMPIL di
-        antara semua match) -- is_visible lama mengunci ke match PERTAMA
-        di DOM yang sering hidden, sehingga tiap kandidat menunggu penuh
-        sampai timeout dan totalnya lama sekali."""
+        """Cek dashboard tampil (find_visible_among biar tidak terkunci ke match hidden)."""
         self.wait_loading_mask_gone(timeout=timeout)
         for locator in (self.TAB_DASHBOARD_AKTIF, self.HEADER_DASHBOARD, self.WIDGET_SURAT_MASUK):
             try:
@@ -97,23 +78,16 @@ class DashboardPage(BasePage):
         return False
 
     def is_widget_visible(self, locator, timeout=5):
-        """Cek widget tampil -- find_visible_among (cari yang benar2
-        tampil), tanpa wait mask per widget (mask sudah ditunggu sekali
-        di pemanggil) supaya awal dashboard cepat."""
+        """Cek widget tampil (mask sudah ditunggu sekali di pemanggil)."""
         try:
             self.find_visible_among(locator, timeout=timeout)
             return True
         except TimeoutException:
             return False
 
-    # ==========================================================
-    # FILTER RENTANG TANGGAL
-    # ==========================================================
+    # ----------------------------- Filter rentang tanggal -----------------------------
     def open_rentang_tanggal(self, timeout=8):
-        """Klik ikon Rentang Tanggal. PENTING (percepat -- dulu 47 detik
-        karena tiap kandidat locator menunggu timeout PENUH): sekarang
-        tiap kandidat dicari dengan find_visible_among (elemen yang
-        benar-benar tampil) maks 3 detik, langsung klik begitu ketemu."""
+        """Klik ikon Rentang Tanggal (tiap kandidat dicari maks 3 detik)."""
         self.wait_loading_mask_gone(timeout=5)
         for locator in self.ICON_RENTANG_TANGGAL_KANDIDAT:
             try:

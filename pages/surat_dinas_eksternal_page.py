@@ -16,8 +16,7 @@ from pages.surat_form_base_page import SuratFormBasePage
 
 class SuratDinasEksternalPage(SuratFormBasePage):
 
-    # Locator dikonfirmasi lewat tools/scan_locators.py -- qtip aslinya
-    # "Agenda Surat Keluar Eksternal".
+    # Dikonfirmasi lewat tools/scan_locators.py (qtip "Agenda Surat Keluar Eksternal").
     MENU_LOCATOR = (By.CSS_SELECTOR, "[data-qtip='Agenda Surat Keluar Eksternal']")
 
     HEADER_LOCATOR = (By.XPATH, "//*[normalize-space(text())='Surat Keluar Eksternal']")
@@ -32,11 +31,9 @@ class SuratDinasEksternalPage(SuratFormBasePage):
     def is_surat_dinas_eksternal_loaded(self):
         return self.is_halaman_loaded()
 
-    # ==========================================================
-    # ISI FORM -- KHUSUS Surat Keluar Eksternal (step 15).
+    # ----------- ISI FORM -- khusus Surat Keluar Eksternal (step 15) -----------
     # Field: Kepada, Alamat, Perihal, Lampiran, Jenis/Klasifikasi/
     # Sifat/Prioritas/Media Surat, Lokasi Arsip Fisik.
-    # ==========================================================
     def isi_form(self, data_surat):
         if data_surat.get("kepada"):
             self.isi_kepada(data_surat["kepada"])
