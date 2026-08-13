@@ -1,0 +1,86 @@
+{
+  "base_url": "https://qa-dla.antm.tech/",
+  "dashboard": {
+    "tanggal_awal": "06/07/2026",
+    "tanggal_akhir": "06/07/2026"
+  },
+  "tugas": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Disposisi",
+    "kata_kunci_filter": "1"
+  },
+  "masuk": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Surat Masuk Eksternal",
+    "kata_kunci_filter": "1"
+  },
+  "disposisi_keluar": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Notadinas Terkirim",
+    "kata_kunci_filter": "1"
+  },
+  "progress_surat": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Koreksi Disetujui",
+    "kata_kunci_filter": "1"
+  },
+  "surat_dinas_eksternal": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Surat Disetujui",
+    "kata_kunci_filter": "1",
+    "url_dokumen": "https://www.youtube.com/",
+    "nama_dokumen": "Referensi Dokumen",
+    "kepada": "PT efgh",
+    "alamat": "TB Simatupang",
+    "perihal": "TEST",
+    "lampiran_jumlah": 1,
+    "lampiran_satuan": "Berkas",
+    "jenis_surat": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS - UBPP LM",
+    "jenis_surat_keyword": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS",
+    "klasifikasi_surat": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS - UBPP LM",
+    "klasifikasi_surat_keyword": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS",
+    "sifat_surat": "Test",
+    "prioritas_surat": "Urgent",
+    "media_surat": "blabla",
+    "media_surat_keyword": "blabla",
+    "lokasi_arsip_fisik": "aaaaa",
+    "kata_kunci_penyetuju": "Yulia",
+    "checkbox_row_penyetuju": 3,
+    "kata_kunci_penerima": "Ryco",
+    "checkbox_row_penerima": 1,
+    "kata_kunci_penerima_baru": "Arru",
+    "_form2": {
+      "kepada": "PT ABC",
+      "alamat": "Senayan",
+      "perihal": "TEST",
+      "jenis_surat": "ARSIP PENDUKUNG MANAJEMEN RISIKO - UBPP LM",
+      "jenis_surat_keyword": "ARSIP PENDUKUNG MANAJEMEN RISIKO",
+      "klasifikasi_surat": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS - UBPP LM",
+      "klasifikasi_surat_keyword": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS",
+      "sifat_surat": "Cek",
+      "prioritas_surat": "Segera",
+      "media_surat": "blabla",
+    "media_surat_keyword": "blabla",
+      "lokasi_arsip_fisik": "yyyyy"
+    }
+  },
+  "nota_dinas_keluar": {
+    "kata_kunci_pencarian": "1",
+    "jenis_filter": "Surat Disetujui",
+    "kata_kunci_filter": "1",
+    "checkbox_labels_filter": ["Disetujui"],
+    "url_dokumen": "https://www.youtube.com/",
+    "nama_dokumen": "Referensi Dokumen",
+    "perihal": "TEST",
+    "jenis_surat": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS - UBPP LM",
+    "jenis_surat_keyword": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS",
+    "klasifikasi_surat": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS - UBPP LM",
+    "klasifikasi_surat_keyword": "ADMINISTRASI KEGIATAN DI PEMURNIAN EMAS",
+    "sifat_surat": "Test",
+    "prioritas_surat": "Urgent",
+    "lokasi_arsip_fisik": "aaaaa",
+    "kata_kunci_penyetuju": "Yulia",
+    "kata_kunci_penerima": "Ryco",
+    "kata_kunci_penerima_baru": "Arru"
+  }
+}

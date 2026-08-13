@@ -1,0 +1,161 @@
+
+====================================================================================================
+MENU_LINK
+====================================================================================================
+<a> RYCO ICT Business Solution Bureau
+Label : RYCO ICT Business Solution Bureau
+    (By.ID, "sipas_com_button_valuable-1014")
+    (By.XPATH, "//*[normalize-space(text())='RYCO ICT Business Solution Bureau']")
+----------------------------------------------------------------------------------------------------
+<a> Dashboard
+Label : Dashboard
+    (By.CSS_SELECTOR, "[data-qtip='Dashboard']")
+    (By.ID, "sipas_com_menuitem_valueable-1017-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Dashboard']")
+----------------------------------------------------------------------------------------------------
+<a> Tugas
+Label : Tugas
+    (By.CSS_SELECTOR, "[data-qtip='Tugas']")
+    (By.ID, "sipas_com_menuitem_valueable-1018-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Tugas']")
+----------------------------------------------------------------------------------------------------
+<a> Masuk
+Label : Masuk
+    (By.CSS_SELECTOR, "[data-qtip='Masuk']")
+    (By.ID, "sipas_com_menuitem_valueable-1019-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Masuk']")
+----------------------------------------------------------------------------------------------------
+<a> Disposisi Keluar
+Label : Disposisi Keluar
+    (By.CSS_SELECTOR, "[data-qtip='Disposisi Keluar']")
+    (By.ID, "sipas_com_menuitem_valueable-1020-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Disposisi Keluar']")
+----------------------------------------------------------------------------------------------------
+<a> Progress Surat
+Label : Progress Surat
+    (By.CSS_SELECTOR, "[data-qtip='Progress Surat']")
+    (By.ID, "sipas_com_menuitem_valueable-1021-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Progress Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Surat Keluar Eksternal
+Label : Surat Keluar Eksternal
+    (By.CSS_SELECTOR, "[data-qtip='Agenda Surat Keluar Eksternal']")
+    (By.ID, "sipas_com_menuitem_valueable-1024-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Surat Keluar Eksternal']")
+----------------------------------------------------------------------------------------------------
+<a> Nota Dinas Keluar
+Label : Nota Dinas Keluar
+    (By.CSS_SELECTOR, "[data-qtip='Agenda Surat Keluar Internal']")
+    (By.ID, "sipas_com_menuitem_valueable-1025-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Nota Dinas Keluar']")
+----------------------------------------------------------------------------------------------------
+<a> Logout
+Label : Logout
+    (By.CSS_SELECTOR, "[data-qtip='Logout']")
+    (By.ID, "sipas_com_menuitem_valueable-1027-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Logout']")
+----------------------------------------------------------------------------------------------------
+<a> DLA Enterprise v5.51.258801.42
+Label : DLA Enterprise v5.51.258801.42
+    (By.ID, "sipas_com_menuitem_valueable-1029-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='DLA Enterprise v5.51.258801.42']")
+----------------------------------------------------------------------------------------------------
+<a> (kosong)
+    (By.CSS_SELECTOR, ".x-btn")
+----------------------------------------------------------------------------------------------------
+<a> Kelola Surat Pengaturan
+Label : Kelola Surat Pengaturan
+    (By.CSS_SELECTOR, "[data-qtip='Notifikasi Agenda Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Kelola Surat
+Label : Kelola Surat Pengaturan
+    (By.XPATH, "//*[normalize-space(text())='Kelola Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Pengaturan
+Label : Kelola Surat Pengaturan
+    (By.XPATH, "//*[normalize-space(text())='Pengaturan']")
+----------------------------------------------------------------------------------------------------
+<a> MUAT ULANG
+Label : MUAT ULANG
+    (By.CSS_SELECTOR, ".x-btn")
+----------------------------------------------------------------------------------------------------
+<a> MUAT ULANG
+Label : MUAT ULANG
+    (By.XPATH, "//*[normalize-space(text())='MUAT ULANG']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 0 No data to display
+Label : Page of 0 No data to display
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 0 No data to display
+Label : Page of 0 No data to display
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 1 Displaying 1 - 3 of 3
+Label : Page of 1 Displaying 1 - 3 of 3
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> Eksternal
+Label : Eksternal Internal
+    (By.XPATH, "//*[normalize-space(text())='Eksternal']")
+----------------------------------------------------------------------------------------------------
+<a> Internal
+Label : Eksternal Internal
+    (By.XPATH, "//*[normalize-space(text())='Internal']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 6 Displaying 1 - 25 of 138
+Label : Page of 6 Displaying 1 - 25 of 138
+    (By.CSS_SELECTOR, "[data-qtip='Next Page']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 6 Displaying 1 - 25 of 138
+Label : Page of 6 Displaying 1 - 25 of 138
+    (By.CSS_SELECTOR, "[data-qtip='Last Page']")
+----------------------------------------------------------------------------------------------------
+<a> Page of 6 Displaying 1 - 25 of 138
+Label : Page of 6 Displaying 1 - 25 of 138
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> Dashboard
+Label : Dashboard
+    (By.XPATH, "//*[normalize-space(text())='Dashboard']")
+----------------------------------------------------------------------------------------------------
+
+====================================================================================================
+LAINNYA
+====================================================================================================
+<div> Tanggal Terima
+Label : Tanggal Terima
+    (By.CSS_SELECTOR, "[data-qtip='(Tanggal-Bulan-Tahun)']")
+    (By.ID, "gridcolumn-1148-titleEl")
+    (By.XPATH, "//*[normalize-space(text())='Tanggal Terima']")
+----------------------------------------------------------------------------------------------------
+<div> Tanggal Terima
+Label : Tanggal Terima
+    (By.CSS_SELECTOR, "[data-qtip='(Tanggal-Bulan-Tahun)']")
+    (By.ID, "gridcolumn-1215-titleEl")
+    (By.XPATH, "//*[normalize-space(text())='Tanggal Terima']")
+----------------------------------------------------------------------------------------------------
+
+====================================================================================================
+INPUT
+====================================================================================================
+<input> 0
+    (By.ID, "numberfield-1203-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='0']")
+----------------------------------------------------------------------------------------------------
+<input> 0
+    (By.ID, "numberfield-1270-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='0']")
+----------------------------------------------------------------------------------------------------
+<input> 1
+    (By.ID, "numberfield-1324-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='1']")
+----------------------------------------------------------------------------------------------------
+<input> 1
+    (By.ID, "numberfield-1405-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='1']")
+----------------------------------------------------------------------------------------------------

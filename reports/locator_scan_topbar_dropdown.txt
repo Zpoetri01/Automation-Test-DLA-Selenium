@@ -1,0 +1,261 @@
+
+====================================================================================================
+MENU_LINK
+====================================================================================================
+<a> RYCO ICT Business Solution Bureau
+Label : RYCO ICT Business Solution Bureau
+    (By.ID, "sipas_com_button_valuable-1014")
+    (By.XPATH, "//*[normalize-space(text())='RYCO ICT Business Solution Bureau']")
+----------------------------------------------------------------------------------------------------
+<a> Dashboard
+Label : Dashboard
+    (By.CSS_SELECTOR, "[data-qtip='Dashboard']")
+    (By.ID, "sipas_com_menuitem_valueable-1017-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Dashboard']")
+----------------------------------------------------------------------------------------------------
+<a> Tugas 1
+Label : Tugas 1
+    (By.CSS_SELECTOR, "[data-qtip='Tugas']")
+    (By.ID, "sipas_com_menuitem_valueable-1018-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Tugas 1']")
+----------------------------------------------------------------------------------------------------
+<a> Masuk
+Label : Masuk
+    (By.CSS_SELECTOR, "[data-qtip='Masuk']")
+    (By.ID, "sipas_com_menuitem_valueable-1019-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Masuk']")
+----------------------------------------------------------------------------------------------------
+<a> Disposisi Keluar
+Label : Disposisi Keluar
+    (By.CSS_SELECTOR, "[data-qtip='Disposisi Keluar']")
+    (By.ID, "sipas_com_menuitem_valueable-1020-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Disposisi Keluar']")
+----------------------------------------------------------------------------------------------------
+<a> Progress Surat
+Label : Progress Surat
+    (By.CSS_SELECTOR, "[data-qtip='Progress Surat']")
+    (By.ID, "sipas_com_menuitem_valueable-1021-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Progress Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Surat Keluar Eksternal
+Label : Surat Keluar Eksternal
+    (By.CSS_SELECTOR, "[data-qtip='Agenda Surat Keluar Eksternal']")
+    (By.ID, "sipas_com_menuitem_valueable-1024-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Surat Keluar Eksternal']")
+----------------------------------------------------------------------------------------------------
+<a> Nota Dinas Keluar
+Label : Nota Dinas Keluar
+    (By.CSS_SELECTOR, "[data-qtip='Agenda Surat Keluar Internal']")
+    (By.ID, "sipas_com_menuitem_valueable-1025-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Nota Dinas Keluar']")
+----------------------------------------------------------------------------------------------------
+<a> Logout
+Label : Logout
+    (By.CSS_SELECTOR, "[data-qtip='Logout']")
+    (By.ID, "sipas_com_menuitem_valueable-1027-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Logout']")
+----------------------------------------------------------------------------------------------------
+<a> DLA Enterprise v5.51.258801.42
+Label : DLA Enterprise v5.51.258801.42
+    (By.ID, "sipas_com_menuitem_valueable-1029-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='DLA Enterprise v5.51.258801.42']")
+----------------------------------------------------------------------------------------------------
+<a> (kosong)
+    (By.CSS_SELECTOR, ".x-btn")
+----------------------------------------------------------------------------------------------------
+<a> Kelola Surat Pengaturan
+Label : Kelola Surat Pengaturan
+    (By.CSS_SELECTOR, "[data-qtip='Notifikasi Agenda Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Kelola Surat
+Label : Kelola Surat Pengaturan
+    (By.XPATH, "//*[normalize-space(text())='Kelola Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Pengaturan
+Label : Kelola Surat Pengaturan
+    (By.XPATH, "//*[normalize-space(text())='Pengaturan']")
+----------------------------------------------------------------------------------------------------
+<a> MUAT ULANG
+Label : MUAT ULANG TAMBAH
+    (By.ID, "sipas_com_button_refresh-4663")
+    (By.XPATH, "//*[normalize-space(text())='MUAT ULANG']")
+----------------------------------------------------------------------------------------------------
+<a> TAMBAH
+Label : MUAT ULANG TAMBAH
+    (By.ID, "sipas_com_button_add-4664")
+    (By.XPATH, "//*[normalize-space(text())='TAMBAH']")
+----------------------------------------------------------------------------------------------------
+<a> (kosong)
+    (By.CSS_SELECTOR, ".x-btn")
+----------------------------------------------------------------------------------------------------
+<a> Page of 1 Displaying 1 - 1 of 1
+Label : Page of 1 Displaying 1 - 1 of 1
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> MUAT ULANG
+Label : MUAT ULANG TAMBAH
+    (By.ID, "sipas_com_button_refresh-4690")
+    (By.XPATH, "//*[normalize-space(text())='MUAT ULANG']")
+----------------------------------------------------------------------------------------------------
+<a> TAMBAH
+Label : MUAT ULANG TAMBAH
+    (By.ID, "sipas_com_button_add-4691")
+    (By.XPATH, "//*[normalize-space(text())='TAMBAH']")
+----------------------------------------------------------------------------------------------------
+<a> (kosong)
+    (By.CSS_SELECTOR, ".x-btn")
+----------------------------------------------------------------------------------------------------
+<a> Page of 1 Displaying 1 - 2 of 2
+Label : Page of 1 Displaying 1 - 2 of 2
+    (By.CSS_SELECTOR, "[data-qtip='Refresh']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Klasifikasi Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Klasifikasi Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Sifat Kerahasiaan Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Sifat Kerahasiaan Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Prioritas Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Prioritas Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Media Pengiriman Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Media Pengiriman Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Lokasi Arsip Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Lokasi Arsip Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Kontak
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Kontak']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Ekspedisi Surat Keluar
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Ekspedisi Surat Keluar']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Masa Aktif Distibusi
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Masa Aktif Distibusi']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Template Surat
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Template Surat']")
+----------------------------------------------------------------------------------------------------
+<a> Daftar Arahan Dan Respon Disposisi
+Label : Daftar Klasifikasi Surat Daftar Sifat Kerahasiaan Surat Daftar Prioritas Surat Daftar Media Pengiriman Surat Daftar Loka
+    (By.XPATH, "//*[normalize-space(text())='Daftar Arahan Dan Respon Disposisi']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Blm Diarahkan 2
+Label : Agd Masuk Blm Diarahkan 2
+    (By.CSS_SELECTOR, "[data-qtip='Agd Masuk Blm Diarah']")
+    (By.ID, "sipas_com_menuitem_valueable-1058-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Blm Diarahkan 2']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Blm Distribusi
+Label : Agd Masuk Blm Distribusi
+    (By.CSS_SELECTOR, "[data-qtip='Agd Masuk Blm Distribusi']")
+    (By.ID, "sipas_com_menuitem_valueable-1059-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Blm Distribusi']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 7 Hari
+Label : Agd Masuk Reminder 7 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Eks Reminder 7']")
+    (By.ID, "sipas_com_menuitem_valueable-1060-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 7 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 3 Hari
+Label : Agd Masuk Reminder 3 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Eks Reminder 3']")
+    (By.ID, "sipas_com_menuitem_valueable-1061-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 3 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 1 Hari
+Label : Agd Masuk Reminder 1 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Eks Reminder 1']")
+    (By.ID, "sipas_com_menuitem_valueable-1062-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 1 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Keluar Blm Diekspedisi
+Label : Agd Keluar Blm Diekspedisi
+    (By.CSS_SELECTOR, "[data-qtip='Agd Keluar Blm Ekspedisi']")
+    (By.ID, "sipas_com_menuitem_valueable-1063-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Keluar Blm Diekspedisi']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Keluar Nomor
+Label : Agd Keluar Nomor
+    (By.CSS_SELECTOR, "[data-qtip='Agd Keluar Nomor']")
+    (By.ID, "sipas_com_menuitem_valueable-1064-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Keluar Nomor']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Baru
+Label : Agd Masuk Baru
+    (By.CSS_SELECTOR, "[data-qtip='Nota Dinas Masuk Baru']")
+    (By.ID, "sipas_com_menuitem_valueable-1067-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Baru']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 7 Hari
+Label : Agd Masuk Reminder 7 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Int Reminder 7']")
+    (By.ID, "sipas_com_menuitem_valueable-1068-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 7 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 3 Hari
+Label : Agd Masuk Reminder 3 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Int Reminder 3']")
+    (By.ID, "sipas_com_menuitem_valueable-1069-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 3 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Masuk Reminder 1 Hari
+Label : Agd Masuk Reminder 1 Hari
+    (By.CSS_SELECTOR, "[data-qtip='Ag Masuk Int Reminder 1']")
+    (By.ID, "sipas_com_menuitem_valueable-1070-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Masuk Reminder 1 Hari']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Keluar Tertolak
+Label : Agd Keluar Tertolak
+    (By.CSS_SELECTOR, "[data-qtip='Nota Dinas Masuk Tertolak']")
+    (By.ID, "sipas_com_menuitem_valueable-1071-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Keluar Tertolak']")
+----------------------------------------------------------------------------------------------------
+<a> Agd Keluar Nomor
+Label : Agd Keluar Nomor
+    (By.CSS_SELECTOR, "[data-qtip='Nota Dinas Keluar Nomor']")
+    (By.ID, "sipas_com_menuitem_valueable-1074-itemEl")
+    (By.XPATH, "//*[normalize-space(text())='Agd Keluar Nomor']")
+----------------------------------------------------------------------------------------------------
+
+====================================================================================================
+INPUT
+====================================================================================================
+<input> (kosong)
+    (By.ID, "textfield-4668-inputEl")
+    (By.NAME, "textfield-4668-inputEl")
+----------------------------------------------------------------------------------------------------
+<input> Aktif
+    (By.ID, "combo-4669-inputEl")
+    (By.NAME, "combo-4669-inputEl")
+    (By.XPATH, "//*[normalize-space(text())='Aktif']")
+----------------------------------------------------------------------------------------------------
+<input> 1
+    (By.ID, "numberfield-4675-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='1']")
+----------------------------------------------------------------------------------------------------
+<input> (kosong)
+    (By.ID, "textfield-4695-inputEl")
+    (By.NAME, "textfield-4695-inputEl")
+----------------------------------------------------------------------------------------------------
+<input> Aktif
+    (By.ID, "combo-4696-inputEl")
+    (By.NAME, "combo-4696-inputEl")
+    (By.XPATH, "//*[normalize-space(text())='Aktif']")
+----------------------------------------------------------------------------------------------------
+<input> 1
+    (By.ID, "numberfield-4702-inputEl")
+    (By.NAME, "inputItem")
+    (By.XPATH, "//*[normalize-space(text())='1']")
+----------------------------------------------------------------------------------------------------
