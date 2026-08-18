@@ -8,6 +8,7 @@ struktur Flow_Automation_Testing_DLA.md.
 import pytest
 
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
@@ -235,32 +236,65 @@ class TestE2EDlaFlow:
     def test_hapus_draft(self):
         print("\n[MODUL 6B - HAPUS DRAFT]")
         self.surat_dinas_eksternal_page.wait_loading_mask_gone(timeout=10)
+        # Endpoint hapus app sedang flaky ("Koneksi dengan server
+        # terputus" padahal simpan/edit/ajukan jalan normal). Sesuai
+        # keputusan: kalau dialog Gagal muncul, klik OK-nya lalu LANJUT
+        # (soft-fail, tidak menggagalkan test) -- tapi tetap cetak
+        # status network endpoint hapus buat diagnosa akar masalahnya.
         self.surat_dinas_eksternal_page.pilih_draft_pertama()
         print("v Draft berhasil dipilih")
         self.surat_dinas_eksternal_page.klik_hapus()
         print("v Tombol Hapus diklik")
+        # Kosongkan buffer log performa sebelum klik Ya -- semua request
+        # setelah ini = request hapus (ketahuan status HTTP aslinya).
+        self.surat_dinas_eksternal_page.dump_network_requests(
+            label="clear", hanya_clear=True
+        )
         self.surat_dinas_eksternal_page.klik_ya_konfirmasi()
+        self.surat_dinas_eksternal_page.dump_network_requests(label="hapus")
         print("v Ya diklik")
+        # OK di sini = OK notifikasi sukses ATAU OK dialog Gagal --
+        # dua-duanya ditutup supaya test berikutnya mulai bersih.
         self.surat_dinas_eksternal_page.klik_ok_notifikasi()
         print("v OK diklik")
-        assert self.surat_dinas_eksternal_page.is_draft_terhapus()
-        print("v Draft berhasil dihapus")
+        terhapus = self.surat_dinas_eksternal_page.is_draft_terhapus()
+        # Bagikan hasil hapus ke test_ubah_dan_ajukan: kalau gagal (bug),
+        # draft pertama masih ada -> Perubahan langsung pakai draft itu.
+        type(self)._draft_terhapus = terhapus
+        if terhapus:
+            print("v Draft berhasil dihapus")
+        else:
+            print("!! Hapus gagal: endpoint hapus balas HTTP 500 "
+                  "(detail di [debug hapus] di atas).")
+        assert terhapus, "Hapus draft gagal (server balas 500)."
 
     def test_ubah_dan_ajukan(self):
         print("\n[MODUL 6C - SIMPAN DRAFT KEDUA + PERUBAHAN + AJUKAN]")
         data = self.data["surat_dinas_eksternal"]
         f2 = data.get("_form2", {})
 
-        # Step C.6-15: Tambah → isi form beda → Simpan Draft
-        self._isi_form_dan_simpan_draft(
-            self.surat_dinas_eksternal_page,
-            {**data, **f2},  # merge form2 overrides
-            "kedua"
-        )
+        if getattr(type(self), "_draft_terhapus", False):
+            # Jalur normal: draft pertama berhasil dihapus -> buat draft
+            # kedua (Tambah → isi form beda → Simpan Draft).
+            # Step C.6-15: Tambah → isi form beda → Simpan Draft
+            self._isi_form_dan_simpan_draft(
+                self.surat_dinas_eksternal_page,
+                {**data, **f2},  # merge form2 overrides
+                "kedua"
+            )
 
-        # Step C.16: Pilih surat yang baru disimpan
-        self.surat_dinas_eksternal_page.pilih_draft_pertama()
-        print("v Draft kedua berhasil dipilih")
+            # Step C.16: Pilih surat yang baru disimpan
+            self.surat_dinas_eksternal_page.pilih_draft_pertama()
+            print("v Draft kedua berhasil dipilih")
+        else:
+            # Jalur bug hapus (destroy balas 500): draft pertama MASIH ADA
+            # di grid -- langsung pakai draft itu untuk Perubahan, tanpa
+            # Tambah baru, supaya alur E2E tidak berhenti di sini.
+            print("!! Jalur bug: hapus gagal jadi draft pertama masih ada "
+                  "-- langsung pakai draft itu untuk Perubahan.")
+            self.surat_dinas_eksternal_page._tutup_popup_detail_surat()
+            self.surat_dinas_eksternal_page.pilih_draft_pertama()
+            print("v Draft yang masih ada dipilih untuk Perubahan")
 
         # Step C.17: Klik Perubahan
         self.surat_dinas_eksternal_page.klik_perubahan()
@@ -315,6 +349,9 @@ class TestE2EDlaFlow:
         berhasil = page.simpan_draft()
         assert berhasil, f"[{label}] Gagal simpan draft"
         print(f"v [{label}] Draft berhasil disimpan")
+        # Jeda: proses penyimpanan/berkas bisa berjalan async di server --
+        # hapus draft terlalu cepat setelah simpan = error 'Gagal'.
+        page.pace(3)
         # TANPA REFRESH: form sudah tertutup, reload grid via ExtJS store
         page._klik_muat_ulang()
         page.wait_loading_mask_gone(timeout=20)
@@ -334,7 +371,9 @@ class TestE2EDlaFlow:
     def test_detail_surat(self):
         print("\n[MODUL 7B - CEK DETAIL SURAT]")
 
-        self.nota_dinas_keluar_page.pilih_draft_pertama()
+        # Grid Nota Dinas berisi surat yang SUDAH diajukan (bukan draft) --
+        # pilih baris pertama apa saja (popup detail terbuka untuk semua).
+        self.nota_dinas_keluar_page.pilih_baris_pertama()
         print("v Salah satu surat berhasil dipilih")
 
         assert self.nota_dinas_keluar_page.is_detail_surat_terbuka(), (
@@ -370,12 +409,27 @@ class TestE2EDlaFlow:
         print("\n[MODUL TOPBAR]")
         # Kembali ke Dashboard dulu (lonceng notifikasi hanya ada di Dashboard).
         self.dashboard_page.wait_loading_mask_gone(timeout=10)
-        menu = self.dashboard_page.find_visible_among(
-            (By.CSS_SELECTOR, "[data-qtip='Dashboard']"), timeout=10
-        )
+        try:
+            menu = self.dashboard_page.find_visible_among(
+                (By.CSS_SELECTOR, "[data-qtip='Dashboard']"), timeout=10
+            )
+        except TimeoutException:
+            # Di full run item menu Dashboard bisa TERSEMBUNYI (menu tree
+            # collapse / item di luar area tampil) padahal masih ada di DOM.
+            # Fallback: klik via JS -- handler ExtJS tetap terpicu walau
+            # elemen hidden.
+            menu = self.dashboard_page.find(
+                (By.CSS_SELECTOR, "[data-qtip='Dashboard']"), timeout=10
+            )
         self.dashboard_page.click_via_js(menu)
         self.dashboard_page.wait_loading_mask_gone(timeout=10)
-        self.dashboard_page.pace(1)
+        self.dashboard_page.pace(2)
+        if not self.dashboard_page.is_dashboard_loaded(timeout=10):
+            # Fallback terakhir: reload base URL -- landing page = Dashboard
+            # (session SSO sudah aktif di profile Chrome).
+            self.dashboard_page.driver.get(self.data["base_url"])
+            self.dashboard_page.wait_loading_mask_gone(timeout=10)
+            self.dashboard_page.pace(2)
         print("v Kembali ke Dashboard")
 
         hasil = self.topbar_page.buka_semua_menu()

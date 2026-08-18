@@ -83,6 +83,12 @@ def driver():
         "excludeSwitches", ["enable-automation"]
     )
 
+    # Performance log Chrome -> driver.get_log("performance") bisa dipakai
+    # untuk diagnosa network (status HTTP asli request hapus, dll).
+    chrome_options.set_capability(
+        "goog:loggingPrefs", {"performance": "ALL"}
+    )
+
     if config.HEADLESS:
         chrome_options.add_argument("--headless=new")
         chrome_options.add_argument("--window-size=1920,1080")
@@ -123,6 +129,52 @@ def _get_active_driver(test_item):
     return None
 
 
+def _dump_dom_state(active_driver):
+    """Saat test gagal, cetak kondisi DOM penting (window tampil + semua
+    tombol 'Tambah') biar diagnosis di full run tidak perlu ditebak."""
+    try:
+        info = active_driver.execute_script(r"""
+            var out = [];
+            var wins = document.querySelectorAll('div.x-window');
+            out.push('x-window count: ' + wins.length);
+            for (var i = 0; i < wins.length; i++) {
+                var w = wins[i];
+                var r = w.getBoundingClientRect();
+                var z = window.getComputedStyle(w).zIndex;
+                var header = w.querySelector('span.x-window-header-text');
+                var bodyText = (w.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+                out.push('win[' + i + '] z=' + z
+                    + ' size=' + Math.round(r.width) + 'x' + Math.round(r.height)
+                    + ' visible=' + (r.width > 0 && r.height > 0)
+                    + ' isForm=' + !!w.querySelector("textarea[name='surat_perihal']")
+                    + ' hasPilih=' + !!w.querySelector("[id^='sipas_com_button_putin-']")
+                    + ' title="' + (header ? header.textContent.trim() : '') + '"'
+                    + ' body="' + bodyText + '"');
+            }
+            var els = document.querySelectorAll('*');
+            var n = 0;
+            for (var j = 0; j < els.length; j++) {
+                var t = (els[j].childNodes.length === 1
+                    && els[j].firstChild && els[j].firstChild.nodeType === 3)
+                    ? els[j].textContent.trim().toUpperCase() : '';
+                if (t === 'TAMBAH') {
+                    var rr = els[j].getBoundingClientRect();
+                    var parent = els[j].closest('div.x-window');
+                    var title = parent
+                        ? (parent.querySelector('span.x-window-header-text') || {}).textContent
+                        : '(bukan window)';
+                    out.push('Tambah#' + n + ' visible=' + (rr.width > 0 && rr.height > 0)
+                        + ' in="' + (title || '').trim() + '"');
+                    n++;
+                }
+            }
+            return out.join('\\n');
+        """)
+        print("\n[DEBUG DOM STATE]\n" + info + "\n")
+    except Exception as debug_error:
+        print(f"\n[DEBUG DOM STATE GAGAL] {debug_error}\n")
+
+
 # ------------------ Screenshot otomatis saat test gagal / di-skip ------------------
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
@@ -155,6 +207,7 @@ def pytest_runtest_makereport(item, call):
                 active_driver.save_screenshot(screenshot_path)
                 print(f"\n[SCREENSHOT SAAT GAGAL] {screenshot_path}")
                 print(f"[URL SAAT GAGAL] {active_driver.current_url}")
+                _dump_dom_state(active_driver)
 
                 try:
                     from pytest_html import extras

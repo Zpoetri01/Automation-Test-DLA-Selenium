@@ -204,7 +204,7 @@ class FilterableListPage(BasePage):
     def is_popup_advanced_filter_terbuka(self, timeout=15):
         """Popup terbuka = tombol CARI + dropdown 'tampilcombo' tampil.
         (find_visible_among, bukan is_visible yang terkunci match pertama)."""
-        self.pace(1)
+        self.pace(2)
         try:
             cari_tampil = self.find_visible_among(self.BTN_CARI_FILTER, timeout=timeout)
             combo_tampil = self.find_visible_among(self.DROPDOWN_JENIS_FILTER, timeout=5)
@@ -233,7 +233,7 @@ class FilterableListPage(BasePage):
                 self.driver.execute_script("arguments[0].click();", body)
             except Exception:
                 pass
-            self.pace(1)
+            self.pace(2)
             element = self.find_visible_among(self.DROPDOWN_JENIS_FILTER, timeout=10)
             self.click_via_js(element)
             self.click_visible_among(opsi_locator, timeout=10)
@@ -315,7 +315,7 @@ class FilterableListPage(BasePage):
         """Klik CARI di popup Advanced Filter (popup menutup sendiri)."""
         self.click_visible_among(self.BTN_CARI_FILTER, timeout=15)
         self.wait_loading_mask_gone(timeout=15)
-        self.pace(1)
+        self.pace(2)
 
     def klik_reset_filter(self):
         """Klik RESET di popup Advanced Filter; kalau popup masih terbuka, tutup ESC."""

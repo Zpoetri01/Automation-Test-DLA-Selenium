@@ -54,7 +54,7 @@ class TopbarPage(BasePage):
             trigger.click()
         except Exception:
             self.driver.execute_script("arguments[0].click();", trigger)
-        self.pace(1)
+        self.pace(2)
 
     def _klik_tombol(self, locator):
         """Klik tombol topbar SEKALI (native click dulu, fallback JS)."""
@@ -66,7 +66,7 @@ class TopbarPage(BasePage):
             btn.click()
         except Exception:
             self.driver.execute_script("arguments[0].click();", btn)
-        self.pace(1)
+        self.pace(2)
 
     def buka_semua_menu(self):
         """Klik SETIAP tombol topbar SEKALI untuk membuka dropdown-nya,

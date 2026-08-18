@@ -56,7 +56,7 @@ class SuratFormBasePage(FilterableListPage):
         try:
             trigger = self.find_visible_among(self.TRIGGER_POSISI, timeout=10)
             self.click_via_js(trigger)
-            self.pace(1)
+            self.pace(2)
             boundlist_terbuka = (By.CSS_SELECTOR, "ul.x-boundlist-list, div.x-boundlist")
             if self.is_visible(boundlist_terbuka, timeout=3):
                 return
@@ -66,7 +66,7 @@ class SuratFormBasePage(FilterableListPage):
         try:
             element = self.find_visible_among(self.DROPDOWN_FILTER_POSISI, timeout=10)
             self.click_via_js(element)
-            self.pace(1)
+            self.pace(2)
         except Exception:
             # Fallback terakhir: klik combo pertama yang tampil di halaman
             combos = self.find_all_visible(
@@ -74,7 +74,7 @@ class SuratFormBasePage(FilterableListPage):
             )
             if combos:
                 self.click_via_js(combos[0])
-                self.pace(1)
+                self.pace(2)
 
     # ---------------------------- TOMBOL TAMBAH (buka form) ----------------------------
     # id ExtJS random, dicocokkan lewat prefix stabil "sipas_com_button_add-".
@@ -196,29 +196,54 @@ class SuratFormBasePage(FilterableListPage):
 
     # ------------------------ UPLOAD BERKAS VIA LINK (step 13-14) ------------------------
     def upload_berkas_via_link(self, url_dokumen, nama_dokumen=None):
-        """Isi link dokumen SEKALI SAJA lalu verifikasi chip berkas muncul
-        di panel kiri. TIDAK reload halaman & TIDAK klik Tambah Berkas
-        lagi -- popup Link hanya dibuka & disimpan sekali."""
-        # click_visible_among -- locator ikon/teks generik ini bisa match
-        # sisa popup Link/menu upload sebelumnya yang belum hilang dari DOM.
-        self.click_visible_among(self.BTN_TAMBAH_BERKAS, timeout=15)
-        self.click_visible_among(self.MENU_ITEM_LINK, timeout=10)
-        if nama_dokumen:
-            self.type_text_visible(self.INPUT_DOKUMEN_NAMA, nama_dokumen)
-        self.type_text_visible(self.INPUT_DOKUMEN_LINK, url_dokumen)
-        # Klik SIMPAN + pastikan popup Link benar2 tertutup. Kalau popup
-        # masih terbuka (klik nyasar / event belum terekam), klik ulang
-        # maks 3x.
-        for _ in range(3):
-            self.click_visible_among(self.BTN_SIMPAN_LINK, timeout=10)
-            self.wait_loading_mask_gone(timeout=10)
+        """Isi link dokumen lalu verifikasi chip berkas muncul di panel
+        kiri. Proses server ("Menyiapkan Surat") bisa lambat/macet --
+        kalau chip tak muncul: dismiss dialog proses (OK), cek chip lagi,
+        lalu ulang SELURUH alur upload maks 2x sebelum menyerah."""
+        for percobaan in range(2):
+            if percobaan > 0:
+                print(f"    [debug upload] percobaan ulang ke-{percobaan}")
+                self._tutup_popup_detail_surat()
+                self.pace(5)
+            self.click_visible_among(self.BTN_TAMBAH_BERKAS, timeout=15)
+            self.click_visible_among(self.MENU_ITEM_LINK, timeout=10)
+            if nama_dokumen:
+                self.type_text_visible(self.INPUT_DOKUMEN_NAMA, nama_dokumen)
+            self.type_text_visible(self.INPUT_DOKUMEN_LINK, url_dokumen)
+            # Klik SIMPAN + pastikan popup Link benar2 tertutup. Kalau popup
+            # masih terbuka (klik nyasar / event belum terekam), klik ulang
+            # maks 3x.
+            for _ in range(3):
+                self.click_visible_among(self.BTN_SIMPAN_LINK, timeout=10)
+                self.wait_loading_mask_gone(timeout=10)
+                try:
+                    self.find_visible_in_active_window(self.INPUT_DOKUMEN_LINK, timeout=3)
+                except TimeoutException:
+                    break  # input popup Link tidak tampil lagi = SIMPAN terekam
+            # Tunggu chip berkas -- cek tiap 0,5 detik, selesai BEGITU chip
+            # muncul (bukan jeda mati; kalau server cepat, lanjut dalam
+            # hitungan detik). Batas 20 detik utk server yang agak lambat.
+            if self.is_berkas_terunggah(timeout=20):
+                break
+            # Proses macet -- dismiss dialog proses (klik OK kalau tampil)
+            # lalu cek chip sekali lagi sebelum ulang dari awal
             try:
-                self.find_visible_in_active_window(self.INPUT_DOKUMEN_LINK, timeout=3)
+                self.click_visible_among(self.BTN_OK_NOTIFIKASI, timeout=3)
+                self.wait_loading_mask_gone(timeout=10)
             except TimeoutException:
-                break  # input popup Link tidak tampil lagi = SIMPAN terekam
-        # Tunggu lebih lama untuk chip muncul (ExtJS render bisa lambat)
-        self.pace(2)
-        assert self.is_berkas_terunggah(), "Berkas via Link tidak berhasil diunggah (chip tidak muncul)"
+                pass
+            if self.is_berkas_terunggah(timeout=10):
+                break
+        assert self.is_berkas_terunggah(timeout=10), \
+            "Berkas via Link tidak berhasil diunggah (chip tidak muncul)"
+        # Pastikan dialog proses benar2 tertutup sebelum isi form
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            try:
+                self.find_visible_among(self.POPUP_MENYIAPKAN_SURAT, timeout=3)
+                self.pace(2)  # dialog proses masih menutup -- tunggu
+            except TimeoutException:
+                break
 
     def is_berkas_terunggah(self, timeout=20):
         """Verifikasi chip berkas muncul di panel 'Berkas' DI DALAM form
@@ -309,7 +334,7 @@ class SuratFormBasePage(FilterableListPage):
                 element = self.find_visible_among(dropdown_locator, timeout=5)
                 element.clear()
                 element.send_keys(kata_kunci_filter)
-                self.pace(1)  # tunggu ExtJS memfilter boundlist
+                self.pace(2)  # tunggu ExtJS memfilter boundlist
             except Exception:
                 # Fallback: coba lagi dari awal (buka dropdown + ketik)
                 element = self.find_visible_among(dropdown_locator, timeout=10)
@@ -364,7 +389,7 @@ class SuratFormBasePage(FilterableListPage):
                 element = self.find_visible_among(dropdown_locator, timeout=5)
                 element.clear()
                 element.send_keys(nilai)
-                self.pace(1)
+                self.pace(2)
                 element.send_keys(Keys.ENTER)
                 self.pace(2)
                 selected = True
@@ -425,21 +450,110 @@ class SuratFormBasePage(FilterableListPage):
         )
 
     # ---------------------- TAMBAH PENYETUJU / PENERIMA (step 16-18) ----------------------
+    def _is_popup_staf_terbuka(self, timeout=2):
+        """True kalau popup pencarian staf masih jadi window AKTIF.
+        Penandanya tombol PILIH (putin-) -- unik milik popup staf. JANGAN
+        pakai input[type='search']: halaman list di belakang form juga
+        punya search input sendiri yang selalu tampil, dan cek first-match
+        di full run nyasar ke input hidden milik tab modul lain."""
+        try:
+            self.find_visible_in_active_window(self.BTN_PILIH, timeout=timeout)
+            return True
+        except TimeoutException:
+            return False
+
+    def _tutup_popup_staf(self):
+        """Tutup popup pencarian staf kalau masih terbuka. Klik Batal/Tutup
+        dijalankan HANYA kalau window aktif masih memuat tombol PILIH
+        (popup staf) -- aman dari salah klik Batal milik form."""
+        if not self._is_popup_staf_terbuka(timeout=1):
+            return
+        self._tutup_popup_detail_surat()
+        if not self._is_popup_staf_terbuka(timeout=2):
+            return
+        for teks in ("Batal", "Tutup"):
+            try:
+                self.click_visible_in_active_window(
+                    (By.XPATH, f"//*[normalize-space(text())='{teks}']"), timeout=2
+                )
+                self.pace(2)
+                break
+            except TimeoutException:
+                continue
+        try:
+            body = self.driver.find_element(By.TAG_NAME, "body")
+            body.send_keys(Keys.ESCAPE)
+        except Exception:
+            pass
+
+    def _tambah_buttons_di_form(self):
+        """Tombol 'Tambah' yang tampil DI DALAM window form -- window yang
+        memuat textarea[name='surat_perihal']. Tidak peduli window apa yang
+        sedang teratas/aktif: di full run window teratas bisa popup staf /
+        popup lain yang belum tertutup, bikin hitungan tombol 'Tambah'
+        bergeser kalau dihitung dari window aktif."""
+        try:
+            return self.driver.execute_script("""
+                var wins = document.querySelectorAll('div.x-window');
+                for (var i = 0; i < wins.length; i++) {
+                    var w = wins[i];
+                    var r = w.getBoundingClientRect();
+                    if (r.width <= 0 || r.height <= 0) continue;
+                    if (!w.querySelector("textarea[name='surat_perihal']")) continue;
+                    var btns = [];
+                    var all = w.querySelectorAll('*');
+                    for (var j = 0; j < all.length; j++) {
+                        var t = (all[j].childNodes.length === 1
+                            && all[j].firstChild
+                            && all[j].firstChild.nodeType === 3)
+                            ? all[j].textContent.trim().toUpperCase() : '';
+                        if (t === 'TAMBAH') {
+                            var rr = all[j].getBoundingClientRect();
+                            if (rr.width > 0 && rr.height > 0) btns.push(all[j]);
+                        }
+                    }
+                    return btns;
+                }
+                return [];
+            """)
+        except Exception:
+            return []
+
     def _klik_tambah_by_index(self, index, timeout=10):
         """Klik tombol 'Tambah' ke-`index` (0=Penyetuju, 1=Penerima) di
-        antara tombol 'Tambah' yang BENAR2 TAMPIL. Dicari HANYA di dalam
-        dialog aktif -- tombol 'Tambah' di halaman list tetap
-        is_displayed()==True walau tertutup mask, jadi kalau dihitung
-        seluruh halaman index-nya bergeser (form menumpuk)."""
+        dalam WINDOW FORM. Di full run popup staf (mis. Penyetuju) menutup
+        lebih lambat -- kalau tombol ke-index belum tampil, bersihkan
+        popup staf & cari ulang sampai timeout, JANGAN langsung gagal."""
         # TUTUP dulu popup Nota Dinas yg mungkin jadi active window
         self._tutup_popup_detail_surat()
-        tombol_tampil = self.find_all_visible_in_active_window(self.BTN_TAMBAH_ANY, timeout=timeout)
+        deadline = time.time() + timeout
+        tombol_tampil = []
+        while time.time() < deadline:
+            tombol_tampil = self._tambah_buttons_di_form()
+            if index < len(tombol_tampil):
+                break
+            # Belum cukup -- popup staf sebelumnya mungkin masih menutup /
+            # belum tertutup. Bersihkan & tunggu sebentar, coba lagi.
+            self._tutup_popup_staf()
+            self.pace(2)
         if index >= len(tombol_tampil):
+            deskripsi_jendela = []
+            try:
+                for w in self.find_all_visible(self.WINDOW_LOCATOR, timeout=2):
+                    try:
+                        header = w.find_element(
+                            By.CSS_SELECTOR, "span.x-window-header-text"
+                        )
+                        deskripsi_jendela.append(header.text.strip() or "(tanpa judul)")
+                    except Exception:
+                        deskripsi_jendela.append("(judul?)")
+            except Exception:
+                pass
             raise TimeoutException(
                 f"Cuma ada {len(tombol_tampil)} tombol 'Tambah' yang tampil di "
-                f"dialog aktif, butuh index {index}. Kemungkinan popup staf "
-                "sebelumnya belum tertutup (tertumpuk/tertindih) atau form "
-                "belum selesai render."
+                f"window form, butuh index {index}. Jendela tampil: {deskripsi_jendela}. "
+                "Kemungkinan form belum selesai render atau popup lain masih "
+                "menutup form (tertumpuk/tertindih)."
             )
         # Native click (retry), NO JS fallback ke grid belakang
         btn = tombol_tampil[index]
@@ -451,7 +565,7 @@ class SuratFormBasePage(FilterableListPage):
                 btn.click()
                 break
             except Exception:
-                self.pace(1)
+                self.pace(2)
 
     def _tambah_staf(self, index_tombol_tambah, kata_kunci, checkbox_row=None):
         """Cari & pilih 1 staf. Retry sekali kalau StaleElement."""
@@ -476,7 +590,7 @@ class SuratFormBasePage(FilterableListPage):
         self.click_via_js(input_cari)
         input_cari.clear()
         input_cari.send_keys(kata_kunci)
-        self.pace(1)  # jeda sebentar sebelum ENTER
+        self.pace(2)  # jeda sebentar sebelum ENTER
         input_cari.send_keys(Keys.ENTER)
         self.pace(2)  # tunggu hasil pencarian render (grid re-render)
         self.wait_loading_mask_gone(timeout=10)
@@ -506,17 +620,21 @@ class SuratFormBasePage(FilterableListPage):
                     raise
                 # Hasil pencarian belum render / elemen stale -- tunggu
                 # loading selesai lalu coba lagi
-                self.pace(1)
+                self.pace(2)
                 self.wait_loading_mask_gone(timeout=10)
 
         self.click_visible_in_active_window(self.BTN_PILIH, timeout=10)
         self.wait_loading_mask_gone(timeout=10)
-        # Pastikan popup staf benar2 tertutup dulu
-        self._wait(10).until(
-            lambda _: not self.is_visible(self.INPUT_CARI_STAF, timeout=2)
-        )
+        # Pastikan popup staf benar2 tertutup dulu. Di full run penutupan
+        # popup bisa lebih lambat -- cek via tombol PILIH (unik popup staf),
+        # bukan cek first-match input search yang bisa lolos/basi.
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            if not self._is_popup_staf_terbuka(timeout=2):
+                break
+            self._tutup_popup_staf()
         # Jeda ekstra -- form perlu waktu jadi active window kembali
-        self.pace(1)
+        self.pace(2)
         # TUTUP popup detail surat yang mungkin "tembus" saat interaksi popup staf
         self._tutup_popup_detail_surat()
 
@@ -547,61 +665,198 @@ class SuratFormBasePage(FilterableListPage):
         "[contains(normalize-space(text()),'Identitas Agenda')]",
     )
 
-    def _is_row_selected(self):
-        """Cek baris terpilih lewat tombol Hapus (draft) ATAU popup detail
-        surat (surat disetujui). find_visible_among, BUKAN is_visible --
-        di full run ada BANYAK tombol Hapus hidden milik tab modul lain."""
-        for locator in self.BTN_HAPUS_CANDIDATES:
-            try:
-                self.find_visible_among(locator, timeout=2)
-                return True
-            except TimeoutException:
-                continue
-        return self.is_visible(self.POPUP_DETAIL_SURAT_ANY, timeout=2)
+    # Popup proses upload berkas -- muncul setelah SIMPAN Link saat
+    # aplikasi menyiapkan surat; kalau server lambat popup ini bisa
+    # bertahan lama dan chip berkas belum tampil.
+    POPUP_MENYIAPKAN_SURAT = (
+        By.XPATH,
+        "//span[contains(@class,'x-window-header-text')]"
+        "[normalize-space(text())='Menyiapkan Surat']",
+    )
 
-    def pilih_draft_pertama(self):
-        """Klik row pertama (ExtJS select dulu, fallback klik DOM), retry 5x."""
+    def _tombol_hapus_enabled(self, timeout=3):
+        """Poll: tombol Hapus yang tampil di viewport ada & ENABLED
+        (tombol belum dirender sebelum ada baris terpilih, dan state
+        enable bisa tertunda sepersekian detik setelah select)."""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            for locator in self.BTN_HAPUS_CANDIDATES:
+                try:
+                    btn = self.find_visible_in_viewport(locator, timeout=1)
+                    enabled = self.driver.execute_script(
+                        "var c = Ext.getCmp(arguments[0].id);"
+                        "return !c || !c.isDisabled || !c.isDisabled();", btn
+                    )
+                    if enabled:
+                        return True
+                except TimeoutException:
+                    continue
+            time.sleep(0.5)
+        return False
+
+    def _is_row_selected(self):
+        """True kalau ada baris DRAFT terpilih (tombol Hapus viewport
+        ENABLED). Popup detail surat ikut dihitung sebagai sinyal baris
+        terpilih (untuk surat yang sudah diajukan)."""
+        if self._tombol_hapus_enabled(timeout=3):
+            return True
+        print("    [debug _is_row_selected] tombol Hapus belum enabled")
+        try:
+            self.find_visible_among(self.POPUP_DETAIL_SURAT_ANY, timeout=2)
+            print("    [debug _is_row_selected] popup detail surat terbuka "
+                  "(baris terpilih mungkin bukan draft)")
+            return True
+        except TimeoutException:
+            return False
+
+    def _grids_viewport(self):
+        """List {id, count} grid yang tampil di viewport & tidak sedang
+        loading (grid tab tersembunyi di luar viewport tidak dihitung)."""
+        try:
+            return self.driver.execute_script("""
+                var vw = window.innerWidth, vh = window.innerHeight;
+                var grids = document.querySelectorAll('div.x-grid');
+                var out = [];
+                for (var i = 0; i < grids.length; i++) {
+                    var rect = grids[i].getBoundingClientRect();
+                    if (rect.width <= 0 || rect.height <= 0) continue;
+                    if (rect.left >= vw || rect.right <= 0
+                        || rect.top >= vh || rect.bottom <= 0) continue;
+                    var grid = Ext.getCmp(grids[i].id);
+                    if (!grid || !grid.getSelectionModel || !grid.getStore) continue;
+                    if (grid.getStore().isLoading()) return 'LOADING';
+                    out.push({id: grids[i].id, count: grid.getStore().getCount()});
+                }
+                return out;
+            """)
+        except Exception:
+            return []
+
+    def pilih_draft_pertama(self, mulai_baris=0):
+        """Pilih baris DRAFT secara deterministik: iterasi tiap baris
+        (mulai dari `mulai_baris`) di tiap grid viewport -- select via
+        selectionModel, lalu kalau tombol Hapus belum ENABLED dispatch
+        klik row (handler rowclick app yang meng-enable tombol). Tombol
+        Hapus ENABLED = baris draft terpilih. Return index baris yang
+        terpilih (dipakai caller untuk geser ke baris berikutnya saat
+        retry). Popup yang mungkin terbuka dari klik row langsung ditutup."""
         self.wait_loading_mask_gone(timeout=15)
         import time as _time
-        for attempt in range(5):
-            # Coba ExtJS selection API dulu (tanpa klik DOM)
-            ok = self.driver.execute_script("""
+        dicoba = 0
+        while dicoba < 60:
+            grids = self._grids_viewport()
+            if grids == 'LOADING' or not grids:
+                _time.sleep(1)
+                continue
+            # Grid dengan baris terbanyak dulu (grid list utama)
+            grids = sorted(grids, key=lambda g: -g['count'])
+            for info in grids:
+                for r in range(mulai_baris, info['count']):
+                    dicoba += 1
+                    hasil = self.driver.execute_script(
+                        "var g = Ext.getCmp(arguments[0]);"
+                        "if (!g) return 'NO_CMP';"
+                        "g.getSelectionModel().select(arguments[1]);"
+                        "return 'OK';",
+                        info['id'], r,
+                    )
+                    print(f"    [debug pilih_draft] select grid="
+                          f"{info['id'][:30]} row={r}/{info['count']} -> {hasil}")
+                    if self._tombol_hapus_enabled(timeout=2):
+                        return r
+                    # select saja belum enable -- coba klik row (handler
+                    # rowclick app yang meng-enable tombol Hapus)
+                    diklik = self.driver.execute_script(
+                        "var g = Ext.getCmp(arguments[0]);"
+                        "if (!g) return false;"
+                        "var node = g.getView().getNode(arguments[1]);"
+                        "if (!node) return false;"
+                        "node.click();"
+                        "return true;",
+                        info['id'], r,
+                    )
+                    if diklik:
+                        if self._tombol_hapus_enabled(timeout=2):
+                            return r
+                        # Tutup popup detail / error yang terbuka dari klik
+                        self._tutup_popup_detail_surat()
+                    if dicoba >= 60:
+                        break
+                if dicoba >= 60:
+                    break
+            break
+        assert self._tombol_hapus_enabled(timeout=3), (
+            "Tidak ada baris draft yang bisa membuat tombol Hapus ENABLED."
+        )
+        return None
+
+    def pilih_baris_pertama(self):
+        """Pilih baris PERTAMA (surat apa saja) di grid viewport -- untuk
+        Cek Detail Surat: popup 'Identitas Agenda' terbuka untuk semua
+        jenis surat, bukan hanya draft. Berbeda dari pilih_draft_pertama()
+        yang mensyaratkan tombol Hapus ENABLED."""
+        self.wait_loading_mask_gone(timeout=15)
+        import time as _time
+        for _ in range(5):
+            hasil = self.driver.execute_script("""
+                var vw = window.innerWidth, vh = window.innerHeight;
                 var grids = document.querySelectorAll('div.x-grid');
                 for (var i = 0; i < grids.length; i++) {
                     var rect = grids[i].getBoundingClientRect();
-                    if (rect.width > 0 && rect.height > 0) {
-                        var grid = Ext.getCmp(grids[i].id);
-                        if (grid && grid.getSelectionModel && grid.getStore()) {
-                            if (grid.getStore().getCount() > 0) {
-                                grid.getSelectionModel().select(0);
-                                return true;
-                            }
-                        }
-                    }
+                    if (rect.width <= 0 || rect.height <= 0) continue;
+                    if (rect.left >= vw || rect.right <= 0
+                        || rect.top >= vh || rect.bottom <= 0) continue;
+                    var grid = Ext.getCmp(grids[i].id);
+                    if (!grid || !grid.getSelectionModel || !grid.getStore) continue;
+                    var store = grid.getStore();
+                    if (store.isLoading()) return 'LOADING';
+                    if (store.getCount() < 1) continue;
+                    grid.getSelectionModel().select(0);
+                    return 'SELECT count=' + store.getCount()
+                        + ' grid=' + grids[i].id.slice(0, 30);
                 }
-                return false;
+                return 'NO_GRID';
             """)
-            if ok and self._is_row_selected():
-                return
-            # Fallback: klik DOM row
-            rows = self.driver.find_elements(*self.ROW_DRAFT)
-            for r in rows:
+            print(f"    [debug pilih_baris] {hasil}")
+            if isinstance(hasil, str) and hasil.startswith("SELECT"):
+                # Sukses kalau popup detail terbuka ATAU tombol Hapus muncul
                 try:
-                    rect = self.driver.execute_script(
-                        "var r=arguments[0].getBoundingClientRect();"
-                        "return [r.width,r.height];", r
-                    )
-                    if rect[0] > 0 and rect[1] > 0:
-                        self.click_via_js(r)
-                        self.wait_loading_mask_gone(timeout=3)
-                        if self._is_row_selected():
-                            return
-                except Exception:
-                    continue
+                    self.find_visible_among(self.POPUP_DETAIL_SURAT_ANY, timeout=3)
+                    return
+                except TimeoutException:
+                    pass
+                if self._tombol_hapus_enabled(timeout=2):
+                    return
+                # Belum ada tanda baris terpilih -- klik row (handler
+                # rowclick app yang membuka popup detail surat)
+                diklik = self.driver.execute_script("""
+                    var g = Ext.getCmp(arguments[0]);
+                    if (!g) return false;
+                    var node = g.getView().getNode(0);
+                    if (!node) return false;
+                    node.click();
+                    return true;
+                """, self.driver.execute_script("""
+                    var vw = window.innerWidth, vh = window.innerHeight;
+                    var grids = document.querySelectorAll('div.x-grid');
+                    for (var i = 0; i < grids.length; i++) {
+                        var rect = grids[i].getBoundingClientRect();
+                        if (rect.width <= 0 || rect.height <= 0) continue;
+                        if (rect.left >= vw || rect.right <= 0
+                            || rect.top >= vh || rect.bottom <= 0) continue;
+                        return grids[i].id;
+                    }
+                    return '';
+                """))
+                if diklik:
+                    try:
+                        self.find_visible_among(self.POPUP_DETAIL_SURAT_ANY, timeout=5)
+                        return
+                    except TimeoutException:
+                        pass
             _time.sleep(2)
-        assert self._is_row_selected(), (
-            "Baris pertama tidak berhasil dipilih -- "
-            "tombol Hapus/popup detail tidak muncul."
+        raise AssertionError(
+            "Baris pertama tidak berhasil dipilih untuk Cek Detail Surat."
         )
 
     def klik_perubahan(self):
@@ -650,12 +905,13 @@ class SuratFormBasePage(FilterableListPage):
         return self.ajukan_penyetujuan()
 
     def klik_hapus(self):
-        """Klik tombol Hapus yang benar2 tampil. Kalau tidak ada, pilih
-        ulang baris pertama lalu coba lagi (maks 3x)."""
+        """Klik tombol Hapus yang benar2 tampil DI VIEWPORT (jangan sampai
+        nyasar ke tombol Hapus milik tab modul lain yang tersembunyi).
+        Kalau tidak ada, pilih ulang baris pertama lalu coba lagi (maks 3x)."""
         for attempt in range(3):
             for locator in self.BTN_HAPUS_CANDIDATES:
                 try:
-                    btn = self.find_visible_among(locator, timeout=5)
+                    btn = self.find_visible_in_viewport(locator, timeout=5)
                     self.click_via_js(btn)
                     self.wait_loading_mask_gone(timeout=5)
                     return
@@ -667,18 +923,53 @@ class SuratFormBasePage(FilterableListPage):
             "Tombol Hapus tidak ditemukan. Pastikan draft baris sudah dipilih."
         )
 
+    def _judul_window_elemen(self, element):
+        """Judul + cuplikan isi window ExtJS yang memuat `element` (debug) --
+        biar pesan dialog error (mis. 'Koneksi dengan server terputus')
+        ikut tercetak di log."""
+        try:
+            return self.driver.execute_script(
+                "var w = arguments[0].closest('div.x-window');"
+                "if (!w) return '(bukan window)';"
+                "var h = w.querySelector('span.x-window-header-text');"
+                "var t = h ? h.textContent.trim() : '(tanpa judul)';"
+                "var b = (w.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 120);"
+                "return t + ' | isi: ' + b;", element
+            )
+        except Exception:
+            return "(?)"
+
     def klik_ya_konfirmasi(self):
-        self.click_visible_among(self.BTN_YA_KONFIRMASI, timeout=15)
+        btn = self.find_visible_among(self.BTN_YA_KONFIRMASI, timeout=15)
+        print(f"    [debug klik_ya] tombol Ya di jendela: {self._judul_window_elemen(btn)}")
+        self.click_via_js(btn)
         self.wait_loading_mask_gone(timeout=10)
 
     def klik_ok_notifikasi(self):
         if self.is_visible(self.BTN_OK_NOTIFIKASI, timeout=5):
-            self.click_visible_among(self.BTN_OK_NOTIFIKASI, timeout=5)
+            btn = self.find_visible_among(self.BTN_OK_NOTIFIKASI, timeout=5)
+            print(f"    [debug klik_ok] tombol OK di jendela: {self._judul_window_elemen(btn)}")
+            self.click_via_js(btn)
         self.wait_loading_mask_gone(timeout=10)
 
     def is_draft_terhapus(self, timeout=10):
-        return not self.is_visible(self.BTN_YA_KONFIRMASI, timeout=timeout) \
-               and not self.is_visible(self.BTN_HAPUS, timeout=5)
+        """Draft terhapus = dialog 'Ya' tidak tampil lagi di viewport DAN
+        tombol Hapus di viewport tidak ada/disabled (tidak ada draft
+        terpilih lagi)."""
+        try:
+            self.find_visible_in_viewport(self.BTN_YA_KONFIRMASI, timeout=timeout)
+            return False
+        except TimeoutException:
+            pass
+        try:
+            btn = self.find_visible_in_viewport(self.BTN_HAPUS_CANDIDATES[0], timeout=5)
+            enabled = self.driver.execute_script(
+                "var c = Ext.getCmp(arguments[0].id);"
+                "return !c || !c.isDisabled || !c.isDisabled();", btn
+            )
+            return not enabled
+        except TimeoutException:
+            return True
 
     def pilih_tembusan_checkbox(self):
         """step 18: Centang checkbox 'Tembusan' pada baris penerima, di

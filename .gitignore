@@ -4,3 +4,10 @@
 venv/
 .env
 *.pyc
+
+# Profil Chrome untuk SSO Google (data sesi mesin lokal)
+selenium-chrome-profile/
+
+# Screenshot hasil test -- dibuat ulang otomatis tiap run,
+# laporan finalnya sudah self-contained di reports/report.html
+reports/screenshots/

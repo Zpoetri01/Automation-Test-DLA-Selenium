@@ -36,7 +36,9 @@ LONG_TIMEOUT = int(os.getenv("DLA_LONG_TIMEOUT", "30"))
 # ------------------- Jeda antar-aksi (detik) -------------------
 # HANYA untuk kebutuhan visual (alur bisa diikuti mata saat browser
 # dibuka), BUKAN untuk menunggu elemen (itu tugas WebDriverWait).
-ACTION_PACE_SECONDS = float(os.getenv("DLA_ACTION_PACE", "1"))
+# Rentang jeda antar-aksi: 2-5 detik (pace eksplisit lain di kode
+# juga sudah berada dalam rentang ini, tidak ada yang > 5).
+ACTION_PACE_SECONDS = float(os.getenv("DLA_ACTION_PACE", "2"))
 
 # ------------------- Lokasi folder laporan & screenshot -------------------
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
